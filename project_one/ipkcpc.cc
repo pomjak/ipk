@@ -49,11 +49,11 @@ int main(int argc, char *argv[])
                 if (!regex_match(mode, reg))
                     exit_err("poorly formated mode");
             }
-            else exit_err("poorly chosen params");
+            else exit_err("poorly chosen args");
         }
     }
 
-    else exit_err("bad # of params");
+    else exit_err("bad # of args");
     
 
 
