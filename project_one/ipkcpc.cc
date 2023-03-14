@@ -12,7 +12,7 @@ void print_usage(void)
 
 void exit_err(string msg)
 {
-    cout << msg <<'\n';
+    cerr << msg << endl;
     exit(EXIT_FAILURE);
 }
 
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
             else if (string(argv[i]) == "-p")
             {
                 port_num = argv[++i];
-                if (stoi(port_num) < 1 || stoi(port_num) > 65535)
+                if (stoi(port_num) < 1 || stoi(port_num) > 65535)//ports num can be <1,65535>,
                     exit_err("poorly formated port number");
             }
 
