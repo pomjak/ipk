@@ -7,8 +7,7 @@
 // #include <netinet/in.h>
 #include <unistd.h>
 #define BUFFER_SIZE 1024
-#define OPCODE_
-
+#define OPCODE_REQUEST 0
 
 using namespace std;
 
@@ -66,8 +65,13 @@ int main(int argc, char *argv[])
     
 
     int client_socket;
-    char buffer[BUFFER_SIZE] = "\0\7(+ 1 2)"; 
-    
+
+    char buffer[BUFFER_SIZE] = "(+ 6 4)";
+    char temp[BUFFER_SIZE] = {OPCODE_REQUEST, (char)strlen(buffer)};
+    strcat(temp + 2, buffer);
+
+    memcpy(buffer, temp, BUFFER_SIZE);
+
     cout<< buffer << endl;
 
     /*
@@ -90,18 +94,18 @@ int main(int argc, char *argv[])
     /*
      * sendto()
      */
-    int bytes_tx = sendto(client_socket, buffer, strlen(buffer), MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    int bytes_tx = sendto(client_socket, buffer, strlen(buffer+2)+2, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if(bytes_tx < 0 )
         exit_err("send to FAILED");
 
     socklen_t len;
-
-    int bytes_rx = recvfrom(client_socket, (char *)buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
+    char * buf_out = NULL;
+    int bytes_rx = recvfrom(client_socket, buf_out, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
     if (bytes_rx < 0)
         exit_err("recv to FAILED");
 
-    buffer[bytes_rx] = '\0';
-    cout << buffer<< endl;
+    buf_out[bytes_rx+1] = '\0';
+    cout << buf_out<< endl;
 
     close(client_socket);
 
