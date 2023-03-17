@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     else exit_err("bad # of args");
     
     int client_socket;
-    char buffer[UDP_LIMIT] = "(+ 6 4)";
+    char buffer[UDP_LIMIT] = "(+ 2 3)";
     char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
 
     strcat(temp + OPCODE_OFFSET, buffer);
@@ -106,13 +106,15 @@ int main(int argc, char *argv[])
     if (bytes_rx < 0)
         exit_err("recv to FAILED");
 
+    srv_response[bytes_rx] = '\0';
+
     if(srv_response[0] != OPCODE_RESPONSE)
         exit_err("bad server response opcode");
 
     if(srv_response[1] != STATUS_OKEY)
-        exit_err("server status ERR");
-
-    cout << srv_response + RESPONSE_OFFSET << endl;
+        cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;
+    else 
+        cout << "OK:"<<srv_response + RESPONSE_OFFSET << endl;
 
     close(client_socket);
 
