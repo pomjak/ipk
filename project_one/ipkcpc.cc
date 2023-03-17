@@ -1,6 +1,14 @@
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <regex>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+// #include <netinet/in.h>
+#include <unistd.h>
+#define BUFFER_SIZE 1024
+#define OPCODE_
+
 
 using namespace std;
 
@@ -57,6 +65,45 @@ int main(int argc, char *argv[])
     else exit_err("bad # of args");
     
 
+    int client_socket;
+    char buffer[BUFFER_SIZE] = "\0\7(+ 1 2)"; 
+    
+    cout<< buffer << endl;
+
+    /*
+     * socket()
+     */
+    if((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)//creating client socket for udp
+        exit_err("failed creating client socket");
+
+    /*
+     * bind()
+     */
+    struct sockaddr_in server_addr;//struct fot server information
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(stoi(port_num));
+
+    if(inet_pton(AF_INET,host_ip.c_str(),&server_addr.sin_addr) <= 0)//validating ip addr of server
+        exit_err("Invalid ip addr");
+
+    /*
+     * sendto()
+     */
+    int bytes_tx = sendto(client_socket, buffer, strlen(buffer), MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if(bytes_tx < 0 )
+        exit_err("send to FAILED");
+
+    socklen_t len;
+
+    int bytes_rx = recvfrom(client_socket, (char *)buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
+    if (bytes_rx < 0)
+        exit_err("recv to FAILED");
+
+    buffer[bytes_rx] = '\0';
+    cout << buffer<< endl;
+
+    close(client_socket);
 
     return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CPPFLAGS= -O2 -std=c++11 -Wall -Wextra -Wpedantic 
+CPPFLAGS= -O2 -std=c++14 -Wall -Wextra -Wpedantic 
 DEBUG= -g
 SRCS=ipkcpc.cc
 OBJS=ipkcpc
