@@ -6,8 +6,13 @@
 #include <sys/socket.h>
 // #include <netinet/in.h>
 #include <unistd.h>
-#define BUFFER_SIZE 1024
+#define UDP_LIMIT 256
 #define OPCODE_REQUEST 0
+#define OPCODE_RESPONSE 1
+#define STATUS_OKEY 0
+#define STATUS_ERROR 1
+#define OPCODE_OFFSET 2
+#define RESPONSE_OFFSET 3
 
 using namespace std;
 
@@ -63,16 +68,13 @@ int main(int argc, char *argv[])
 
     else exit_err("bad # of args");
     
-
     int client_socket;
+    char buffer[UDP_LIMIT] = "(+ 6 4)";
+    char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
 
-    char buffer[BUFFER_SIZE] = "(+ 6 4)";
-    char temp[BUFFER_SIZE] = {OPCODE_REQUEST, (char)strlen(buffer)};
-    strcat(temp + 2, buffer);
+    strcat(temp + OPCODE_OFFSET, buffer);
 
-    memcpy(buffer, temp, BUFFER_SIZE);
-
-    cout<< buffer << endl;
+    memcpy(buffer, temp, UDP_LIMIT);
 
     /*
      * socket()
@@ -94,18 +96,23 @@ int main(int argc, char *argv[])
     /*
      * sendto()
      */
-    int bytes_tx = sendto(client_socket, buffer, strlen(buffer+2)+2, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    int bytes_tx = sendto(client_socket, buffer, strlen(buffer + OPCODE_OFFSET) + OPCODE_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if(bytes_tx < 0 )
         exit_err("send to FAILED");
 
     socklen_t len;
-    char * buf_out = NULL;
-    int bytes_rx = recvfrom(client_socket, buf_out, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
+    char srv_response[UDP_LIMIT];
+    int bytes_rx = recvfrom(client_socket, (char *)srv_response, UDP_LIMIT, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
     if (bytes_rx < 0)
         exit_err("recv to FAILED");
 
-    buf_out[bytes_rx+1] = '\0';
-    cout << buf_out<< endl;
+    if(srv_response[0] != OPCODE_RESPONSE)
+        exit_err("bad server response opcode");
+
+    if(srv_response[1] != STATUS_OKEY)
+        exit_err("server status ERR");
+
+    cout << srv_response + RESPONSE_OFFSET << endl;
 
     close(client_socket);
 
