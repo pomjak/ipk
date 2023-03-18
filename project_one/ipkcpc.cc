@@ -1,12 +1,14 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <cstdlib>
 #include <regex>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <signal.h>
 
-#define UDP_LIMIT 256
+#define UDP_LIMIT 255
 #define OPCODE_REQUEST 0
 #define OPCODE_RESPONSE 1
 #define STATUS_OKEY 0
@@ -29,9 +31,18 @@ void exit_err(string msg)
     exit(EXIT_FAILURE);
 }
 
+void signal_callback_handler(int signum)
+{
+    cout << "Exiting gracefully " << endl;
+    // Terminate program
+    exit(signum);
+}
+
 int main(int argc, char *argv[])
 {
     string host_ip,port_num,mode;
+
+    signal(SIGINT, signal_callback_handler);
 
     if(argc == 2 && string(argv[1]) == "--help")
         print_usage();
@@ -68,60 +79,67 @@ int main(int argc, char *argv[])
 
     else exit_err("bad # of args");
     
-    /*
-     * socket()
-     */
-    int client_socket;
-    if((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)//creating client socket for udp
-        exit_err("failed creating client socket");
-
-    /*
-     * bind()
-     */
-    struct sockaddr_in server_addr;//struct fot server information
-
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(stoi(port_num));
-
-    if(inet_pton(AF_INET,host_ip.c_str(),&server_addr.sin_addr) <= 0)//validating ip addr of server
-        exit_err("Invalid ip addr");
-
-    char buffer[UDP_LIMIT] = "\0";
-
-    while (fgets(buffer,UDP_LIMIT,stdin))
+    if(mode == "udp")
     {
-        buffer[strlen(buffer) - 1] = '\0';
-        char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
-
-        strcat(temp + OPCODE_OFFSET, buffer);
-
-        memcpy(buffer, temp, UDP_LIMIT);
+        /*
+         * socket()
+         */
+        int client_socket;
+        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating client socket");
 
         /*
-        * sendto()
-        */
-        int bytes_tx = sendto(client_socket, buffer, strlen(buffer + OPCODE_OFFSET) + OPCODE_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
-        if(bytes_tx < 0 )
-            exit_err("send to FAILED");
+         * bind()
+         */
+        struct sockaddr_in server_addr; // struct fot server information
 
-        socklen_t len;
-        char srv_response[UDP_LIMIT];
-        int bytes_rx = recvfrom(client_socket, (char *)srv_response, UDP_LIMIT, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
-        if (bytes_rx < 0)
-            exit_err("recv to FAILED");
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(stoi(port_num));
 
-        srv_response[bytes_rx] = '\0';
+        if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
+            exit_err("Invalid ip addr");
 
-        if(srv_response[0] != OPCODE_RESPONSE)
-            exit_err("bad server response opcode");
+        char buffer[UDP_LIMIT] = "\0";
 
-        if(srv_response[1] != STATUS_OKEY)
-            cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;
-        else 
-            cout << "OK:"<< srv_response + RESPONSE_OFFSET << endl;
+        while (fgets(buffer, UDP_LIMIT, stdin))
+        {
+            buffer[strlen(buffer) - 1] = '\0';
+            char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
+
+            strcat(temp + OPCODE_OFFSET, buffer);
+
+            memcpy(buffer, temp, UDP_LIMIT);
+
+            /*
+             * sendto()
+             */
+            int bytes_tx = sendto(client_socket, buffer, strlen(buffer + OPCODE_OFFSET) + OPCODE_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
+            if (bytes_tx < 0)
+                exit_err("send to FAILED");
+
+            socklen_t len;
+            char srv_response[UDP_LIMIT];
+            int bytes_rx = recvfrom(client_socket, (char *)srv_response, UDP_LIMIT, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
+            if (bytes_rx < 0)
+                exit_err("recv to FAILED");
+
+            srv_response[bytes_rx] = '\0';
+
+            if (srv_response[0] != OPCODE_RESPONSE)
+                exit_err("bad server response opcode");
+
+            if (srv_response[1] != STATUS_OKEY)
+                cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;
+            else
+                cout << "OK:" << srv_response + RESPONSE_OFFSET << endl;
+        }
+
+        close(client_socket);
     }
-
-    close(client_socket);
+    else
+    {
+        cout << "tcp TBD" << endl;
+    }
 
     return EXIT_SUCCESS;
 }
