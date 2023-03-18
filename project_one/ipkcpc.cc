@@ -158,25 +158,29 @@ int main(int argc, char *argv[])
         if (connect(client_socket, (const sockaddr *)&server_addr, sizeof(server_addr)) != 0)
             exit_err("connection with server failed");
 
-        char buffer[TCP_LIMIT] = "\0";
+        char buffer[TCP_LIMIT];
 
-        int bytes_tx = send(client_socket, "HELLO\n", strlen("HELLO\n"), 0);
-        if(bytes_tx < 0)
-            exit_err("send failed");
-        else
-            cout <<"HELLO sent to srv" << endl;
+        while (fgets(buffer, TCP_LIMIT, stdin))
+        {
+            
+            int bytes_tx = send(client_socket, buffer, strlen(buffer), 0);
+            if(bytes_tx < 0)
+                exit_err("send failed");
 
-        recv(client_socket, buffer, TCP_LIMIT,0);
-        cout << "from SERVER:";
-        cout << buffer << endl;
+            memset(buffer, 0, sizeof(buffer));
 
-
-        send(client_socket, "BYE\n", strlen("BYE\n"),0);
-
-        recv(client_socket, buffer, TCP_LIMIT,0);
-
-        cout << buffer << endl;
-
+            int bytes_rx = recv(client_socket, buffer, TCP_LIMIT, 0);
+            if (bytes_rx < 0)
+                exit_err("recv failed");
+            else
+            {
+                cout << buffer;
+                
+                if (!strcmp(buffer,"BYE\n"))
+                    break;
+            }
+            memset(buffer, 0, sizeof(buffer));
+        }
         close(client_socket);
     }
 
