@@ -139,9 +139,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        /*
-         * socket()
-         */
+
         int client_socket;
         if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
@@ -160,26 +158,26 @@ int main(int argc, char *argv[])
 
         char buffer[TCP_LIMIT];
 
-        while (fgets(buffer, TCP_LIMIT, stdin))
+        while (fgets(buffer, TCP_LIMIT, stdin))//load from stdin
         {
             
-            int bytes_tx = send(client_socket, buffer, strlen(buffer), 0);
+            int bytes_tx = send(client_socket, buffer, strlen(buffer), 0);//send buffer to srv
             if(bytes_tx < 0)
                 exit_err("send failed");
 
-            memset(buffer, 0, sizeof(buffer));
+            memset(buffer, 0, sizeof(buffer));//clean buffer to be able to recieve
 
-            int bytes_rx = recv(client_socket, buffer, TCP_LIMIT, 0);
+            int bytes_rx = recv(client_socket, buffer, TCP_LIMIT, 0);//recv from srv
             if (bytes_rx < 0)
                 exit_err("recv failed");
-            else
+            else//if success
             {
                 cout << buffer;
                 
-                if (!strcmp(buffer,"BYE\n"))
+                if (!strcmp(buffer,"BYE\n"))//if recieved msg is bye
                     break;
             }
-            memset(buffer, 0, sizeof(buffer));
+            memset(buffer, 0, sizeof(buffer));//clean buffer to be able to read from stdin
         }
         close(client_socket);
     }
