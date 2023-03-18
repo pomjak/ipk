@@ -17,17 +17,17 @@
 #include <sys/socket.h>
 #include <signal.h>
 
-#define UDP_LIMIT 255
-#define TCP_LIMIT 65535
-#define OPCODE_REQUEST 0
+#define UDP_LIMIT 256 //max # of data udp can send
+#define TCP_LIMIT 65535 // max # of data tcp can send
+#define OPCODE_REQUEST 0 
 #define OPCODE_RESPONSE 1
 #define STATUS_OKEY 0
 #define STATUS_ERROR 1
-#define REQUEST_OFFSET 2
-#define RESPONSE_OFFSET 3
+#define REQUEST_OFFSET 2    //offset for writing into udp request 
+#define RESPONSE_OFFSET 3   //offset for reading from udp response
 
 using namespace std;
-int client_socket;
+int client_socket; //global variables for signal handling
 string mode;
 
 void print_usage(void)
@@ -62,7 +62,8 @@ void signal_callback_handler(int signum)
 
 int main(int argc, char *argv[])
 {
-    string host_ip,port_num;
+    string host_ip;
+    int port_num = 0;
 
     #ifdef _WIN32
         WSADATA wsaData;
@@ -74,38 +75,36 @@ int main(int argc, char *argv[])
     if(argc == 2 && string(argv[1]) == "--help")
         print_usage();
 
-    else if(argc == 7)
+    else if(argc != 7)
+        exit_err("bad # of args ipkcpc -h 1.2.3.4 -p 2023 -m udp");
+
+    for(int i = 1; i < argc; i++)//options processing
     {
-        for(int i = 1; i < argc; i++)
+        if(string(argv[i]) == "-h")
         {
-            if(string(argv[i]) == "-h")
-            {
-                host_ip = argv[++i];
-                regex reg("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(.(?!$)|$)){4}$");//regex fot ip
-                if(!regex_match(host_ip,reg))// if not match exit
-                    exit_err("poorly formated ip addr");
-            }
-
-            else if (string(argv[i]) == "-p")
-            {
-                port_num = argv[++i];
-                if (stoi(port_num) < 1 || stoi(port_num) > 65535)//ports num can be <1,65535>,
-                    exit_err("poorly formated port number");
-            }
-
-            else if (string(argv[i]) == "-m")
-            {
-                mode = argv[++i];
-                regex reg("^(tcp|udp)$");
-                if (!regex_match(mode, reg))
-                    exit_err("poorly formated mode");
-            }
-            else exit_err("poorly chosen args");
+            host_ip = argv[++i];
+            regex reg("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(.(?!$)|$)){4}$");//regex fot ip
+            if(!regex_match(host_ip,reg))// if not match exit
+                exit_err("poorly formated ip addr");
         }
-    }
 
-    else exit_err("bad # of args");
-    
+        else if (string(argv[i]) == "-p")
+        {
+            port_num = atoi(argv[++i]);
+            if (port_num < 1 || port_num > 65535)//ports num can be <1,65535>,
+                exit_err("poorly formated port number");
+        }
+
+        else if (string(argv[i]) == "-m")
+        {
+            mode = argv[++i];
+            regex reg("^(tcp|udp)$");
+            if (!regex_match(mode, reg))
+                exit_err("poorly formated mode");
+        }
+        else exit_err("poorly chosen args");
+    }
+        
     if(mode == "udp")
     {
         /*
@@ -120,7 +119,7 @@ int main(int argc, char *argv[])
         struct sockaddr_in server_addr; // struct fot server information
 
         server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(stoi(port_num));
+        server_addr.sin_port = htons(port_num);
 
         if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
             exit_err("Invalid ip addr");
@@ -147,7 +146,7 @@ int main(int argc, char *argv[])
             char srv_response[UDP_LIMIT];
             int bytes_rx = recvfrom(client_socket, (char *)srv_response, UDP_LIMIT, MSG_WAITALL, (struct sockaddr *)&server_addr, &len);
             if (bytes_rx < 0)
-                exit_err("recv to FAILED");
+                exit_err("recv FAILED");
 
             srv_response[bytes_rx] = '\0';
 
@@ -159,9 +158,8 @@ int main(int argc, char *argv[])
             else
                 cout << "OK:" << srv_response + RESPONSE_OFFSET << endl;
         }
-
-        close(client_socket);
     }
+
     else
     {
 
@@ -171,7 +169,7 @@ int main(int argc, char *argv[])
         struct sockaddr_in server_addr;
 
         server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(stoi(port_num));
+        server_addr.sin_port = htons(port_num);
 
         if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
             exit_err("Invalid ip addr");
@@ -202,8 +200,10 @@ int main(int argc, char *argv[])
             }
             memset(buffer, 0, sizeof(buffer));//clean buffer to be able to read from stdin
         }
-        close(client_socket);
+        
     }
 
+    close(client_socket);
+    
     return EXIT_SUCCESS;
 }
