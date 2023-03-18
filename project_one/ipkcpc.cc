@@ -14,7 +14,7 @@
 #define OPCODE_RESPONSE 1
 #define STATUS_OKEY 0
 #define STATUS_ERROR 1
-#define OPCODE_OFFSET 2
+#define REQUEST_OFFSET 2
 #define RESPONSE_OFFSET 3
 
 using namespace std;
@@ -107,14 +107,14 @@ int main(int argc, char *argv[])
             buffer[strlen(buffer) - 1] = '\0';
             char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
 
-            strcat(temp + OPCODE_OFFSET, buffer);
+            strcat(temp + REQUEST_OFFSET, buffer);
 
             memcpy(buffer, temp, UDP_LIMIT);
 
             /*
              * sendto()
              */
-            int bytes_tx = sendto(client_socket, buffer, strlen(buffer + OPCODE_OFFSET) + OPCODE_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
+            int bytes_tx = sendto(client_socket, buffer, strlen(buffer + REQUEST_OFFSET) + REQUEST_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
             if (bytes_tx < 0)
                 exit_err("send to FAILED");
 
