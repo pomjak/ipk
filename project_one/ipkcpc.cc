@@ -65,8 +65,8 @@ int main(int argc, char *argv[])
     string host_ip,port_num;
 
     #ifdef _WIN32
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2, 2), &wsaData); // initialize Winsock on windows
+        WSADATA wsaData;
+        WSAStartup(MAKEWORD(2, 2), &wsaData); // initialize Winsock on windows
     #endif
 
     signal(SIGINT, signal_callback_handler);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
         while (fgets(buffer, UDP_LIMIT, stdin))
         {
-            buffer[strlen(buffer) - 1] = '\0';
+            buffer[strlen(buffer) - 1] = '\0';// removing \n
             char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
 
             strcat(temp + REQUEST_OFFSET, buffer);
