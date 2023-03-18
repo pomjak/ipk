@@ -3,9 +3,17 @@
 #include <cstring>
 #include <cstdlib>
 #include <regex>
-#include <arpa/inet.h>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
+#else
+    #include <unistd.h>
+    #include <arpa/inet.h>
+#endif
+
 #include <sys/socket.h>
-#include <unistd.h>
 #include <signal.h>
 
 #define UDP_LIMIT 255
@@ -54,6 +62,11 @@ void signal_callback_handler(int signum)
 int main(int argc, char *argv[])
 {
     string host_ip,port_num;
+
+    #ifdef _WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData); // initialize Winsock on windows
+    #endif
 
     signal(SIGINT, signal_callback_handler);
 
@@ -153,7 +166,6 @@ int main(int argc, char *argv[])
 
         if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
-        
 
         struct sockaddr_in server_addr;
 
