@@ -8,6 +8,7 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
+    #define SIGINT 2
 #else
     #include <unistd.h>
     #include <arpa/inet.h>
