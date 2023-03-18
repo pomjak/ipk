@@ -9,6 +9,7 @@
 #include <signal.h>
 
 #define UDP_LIMIT 255
+#define TCP_LIMIT 65535
 #define OPCODE_REQUEST 0
 #define OPCODE_RESPONSE 1
 #define STATUS_OKEY 0
@@ -138,7 +139,45 @@ int main(int argc, char *argv[])
     }
     else
     {
-        cout << "tcp TBD" << endl;
+        /*
+         * socket()
+         */
+        int client_socket;
+        if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating client socket");
+        
+
+        struct sockaddr_in server_addr;
+
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(stoi(port_num));
+
+        if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
+            exit_err("Invalid ip addr");
+
+        if (connect(client_socket, (const sockaddr *)&server_addr, sizeof(server_addr)) != 0)
+            exit_err("connection with server failed");
+
+        char buffer[TCP_LIMIT] = "\0";
+
+        int bytes_tx = send(client_socket, "HELLO\n", strlen("HELLO\n"), 0);
+        if(bytes_tx < 0)
+            exit_err("send failed");
+        else
+            cout <<"HELLO sent to srv" << endl;
+
+        recv(client_socket, buffer, TCP_LIMIT,0);
+        cout << "from SERVER:";
+        cout << buffer << endl;
+
+
+        send(client_socket, "BYE\n", strlen("BYE\n"),0);
+
+        recv(client_socket, buffer, TCP_LIMIT,0);
+
+        cout << buffer << endl;
+
+        close(client_socket);
     }
 
     return EXIT_SUCCESS;
