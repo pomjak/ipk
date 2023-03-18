@@ -18,6 +18,8 @@
 #define RESPONSE_OFFSET 3
 
 using namespace std;
+int client_socket;
+string mode;
 
 void print_usage(void)
 {
@@ -34,14 +36,24 @@ void exit_err(string msg)
 
 void signal_callback_handler(int signum)
 {
-    cout << "Exiting gracefully " << endl;
+
+    if(mode == "tcp")
+    {
+        send(client_socket, "BYE\n", strlen("BYE\n"), 0);
+        cout << "BYE\n";
+
+        char buffer[TCP_LIMIT];
+        recv(client_socket, buffer, TCP_LIMIT, 0);
+        cout << buffer;
+
+    }
     // Terminate program
     exit(signum);
 }
 
 int main(int argc, char *argv[])
 {
-    string host_ip,port_num,mode;
+    string host_ip,port_num;
 
     signal(SIGINT, signal_callback_handler);
 
@@ -85,7 +97,6 @@ int main(int argc, char *argv[])
         /*
          * socket()
          */
-        int client_socket;
         if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
 
@@ -140,7 +151,6 @@ int main(int argc, char *argv[])
     else
     {
 
-        int client_socket;
         if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
         
