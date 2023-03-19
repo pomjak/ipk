@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+        if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
     } 
         
