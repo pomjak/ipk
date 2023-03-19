@@ -1,3 +1,4 @@
+- generated CHANGELOG.md
 - ipkcpc.cc: refactoring
 - ipkcpc.cc: added info about licnese
 - ipkcpc.cc: refactor

@@ -69,15 +69,15 @@ void signal_callback_handler(int signum)
 
     if(mode == TCP)
     {
-        send(client_socket, "BYE\n", strlen("BYE\n"), 0);
+        send(client_socket, "BYE\n", strlen("BYE\n"), 0);//if tcp, send BYE 
         cout << "BYE\n";
 
         char buffer[TCP_LIMIT];
-        recv(client_socket, buffer, TCP_LIMIT, 0);
+        recv(client_socket, buffer, TCP_LIMIT, 0);//and wait for BYE from server
         cout << buffer;
 
     }
-    // Terminate program
+    // terminate program
     exit(signum);
 }
 
@@ -160,9 +160,9 @@ int main(int argc, char *argv[])
             buffer[strlen(buffer) - 1] = '\0';// removing \n
             char temp[UDP_LIMIT] = {OPCODE_REQUEST, (char)strlen(buffer)};
 
-            strcat(temp + REQUEST_OFFSET, buffer);
+            strcat(temp + REQUEST_OFFSET, buffer);//adding input from stdin behind opcode and lenght 
 
-            memcpy(buffer, temp, UDP_LIMIT);
+            memcpy(buffer, temp, UDP_LIMIT);//buffer <== temp
 
             int bytes_tx = sendto(client_socket, buffer, strlen(buffer + REQUEST_OFFSET) + REQUEST_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
             if (bytes_tx < 0)
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
                 exit_err("bad server response opcode");
 
             if (srv_response[1] != STATUS_OKEY)
-                cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;
+                cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;//OFFSET skips 1st 3BYTES of data
             else
                 cout << "OK:" << srv_response + RESPONSE_OFFSET << endl;
         }
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
             {
                 cout << buffer;
                 
-                if (!strcmp(buffer,"BYE\n"))//if recieved msg is bye
+                if (!strcmp(buffer,"BYE\n"))//if recieved msg is bye exit
                     break;
             }
             memset(buffer, 0, sizeof(buffer));//clean buffer to be able to read from stdin
