@@ -13,3 +13,6 @@ debug:$(SRCS)
 
 clean:
 	$(RM) $(OBJS)
+
+changelog:
+	git log --pretty="- %s" > CHANGELOG.md

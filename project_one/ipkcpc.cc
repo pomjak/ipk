@@ -132,15 +132,17 @@ int main(int argc, char *argv[])
         else exit_err("poorly chosen args");
     }
         
-    int sock_type = -1;
     if(mode == UDP)
-        sock_type = SOCK_DGRAM;
-    else    
-        sock_type = SOCK_STREAM;
-
-    if ((client_socket = socket(AF_INET, sock_type, 0)) < 0) // creating client socket for udp
-        exit_err("failed creating client socket");
-
+    {
+        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating client socket");
+    }
+    else
+    {
+        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating client socket");
+    } 
+        
     struct sockaddr_in server_addr; // struct fot server information
 
     server_addr.sin_family = AF_INET;

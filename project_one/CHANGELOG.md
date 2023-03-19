@@ -1,0 +1,25 @@
+- ipkcpc.cc: refactoring
+- ipkcpc.cc: added info about licnese
+- ipkcpc.cc: refactor
+- LICENSE.md: Added GPL v3 license
+- ipkcpc.cc:adding definition of SIGINT for windows
+- ipkcpc.cc:added libraries for windows
+- ipkcpc.cc: handling sigint and closing with 'BYE' implemented
+- Makefile:changing standard to C++20
+- ipkcpc.cc:refactoring:renaming macro
+- ipkcpc.cc: correctly formating 1st SOLVE
+- ipkcpc.cc:almost working tcp, just bad fomtaing output
+- ipkcpc.cc:tcp msgs HELLO && BYE implemented
+- ipkcpc.cc:preparing for tcp mode, added function to catch sigint
+- udp format test added and passed
+- ipkcpc.cc:udp fully functional with loading from stdin
+- ipkcpc.cc:setting right formatting of output
+- ipkcpc.cc:udp functional with static input
+- ipkcpc.cc:udp socket(),bind(),sendto() functional for fixed input
+- ipkcpc.cc:basic structure od udp implemented
+- updating .gitignore;
+- Makefile:added choice to compile with or without debug info
+- ipkcpc.cc: setting stream to stderr instead to stdout when exiting with error
+- fixing typos
+- added makefile; ipkcpc.cc:finished loading arguments with input control
+- 1st commit
