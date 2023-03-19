@@ -49,7 +49,8 @@
 
 using namespace std;
 int client_socket; //global variables for signal handling
-bool mode;
+int mode;
+bool close_soc = false;
 
 void print_usage(void)
 {
@@ -61,6 +62,8 @@ void print_usage(void)
 void exit_err(string msg)
 {
     cerr << msg << endl;
+    if(close_soc)
+        close(client_socket);
     exit(EXIT_FAILURE);
 }
 
@@ -77,6 +80,8 @@ void signal_callback_handler(int signum)
         cout << buffer;
 
     }
+    if (close_soc)
+        close(client_socket);
     // terminate program
     exit(signum);
 }
@@ -85,7 +90,7 @@ int main(int argc, char *argv[])
 {
     string host_ip;
     int port_num = 0;
-
+    // close(client_socket);
     #ifdef _WIN32
         WSADATA wsaData;
         WSAStartup(MAKEWORD(2, 2), &wsaData); // initialize Winsock on windows
@@ -97,7 +102,7 @@ int main(int argc, char *argv[])
         print_usage();
 
     else if(argc != 7)
-        exit_err("bad # of args ipkcpc -h 1.2.3.4 -p 2023 -m udp");
+        exit_err("bad # of args,use as ipkcpc -h 1.2.3.4 -p 2023 -m udp");
 
     for(int i = 1; i < argc; i++)//options processing
     {
@@ -143,6 +148,7 @@ int main(int argc, char *argv[])
         if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
     } 
+    close_soc = true;
         
     //bind()
     struct sockaddr_in server_addr; // struct fot server information
@@ -180,6 +186,9 @@ int main(int argc, char *argv[])
 
             if (srv_response[0] != OPCODE_RESPONSE)
                 exit_err("bad server response opcode");
+
+            int payload_len = (int)srv_response[2];
+            srv_response[RESPONSE_OFFSET + payload_len+1] = '\0';
 
             if (srv_response[1] != STATUS_OKEY)
                 cout << "ERR:" << srv_response + RESPONSE_OFFSET << endl;//OFFSET skips 1st 3BYTES of data

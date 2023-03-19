@@ -1,3 +1,4 @@
+- README.md: init
 - ipkcpc.cc: fix tcp sokcet
 - Makefile: added make win; README.md: added
 - generated CHANGELOG.md
