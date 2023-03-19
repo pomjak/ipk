@@ -36,6 +36,8 @@
 #include <sys/socket.h>
 #include <signal.h>
 
+#define TCP 0
+#define UDP 1
 #define UDP_LIMIT 256 //max # of data udp can send
 #define TCP_LIMIT 65535 // max # of data tcp can send
 #define OPCODE_REQUEST 0 
@@ -47,7 +49,7 @@
 
 using namespace std;
 int client_socket; //global variables for signal handling
-string mode;
+bool mode;
 
 void print_usage(void)
 {
@@ -65,7 +67,7 @@ void exit_err(string msg)
 void signal_callback_handler(int signum)
 {
 
-    if(mode == "tcp")
+    if(mode == TCP)
     {
         send(client_socket, "BYE\n", strlen("BYE\n"), 0);
         cout << "BYE\n";
@@ -116,33 +118,39 @@ int main(int argc, char *argv[])
 
         else if (string(argv[i]) == "-m")
         {
-            mode = argv[++i];
-            regex reg("^(tcp|udp)$");
-            if (!regex_match(mode, reg))
+            i++;
+            regex reg_udp("^udp$");
+            regex reg_tcp("^tcp$");
+
+            if (regex_match(argv[i], reg_udp))
+                mode = UDP;
+            else if (regex_match(argv[i], reg_tcp))
+                mode = TCP;
+            else
                 exit_err("poorly formated mode");
         }
         else exit_err("poorly chosen args");
     }
         
-    if(mode == "udp")
+    int sock_type = -1;
+    if(mode == UDP)
+        sock_type = SOCK_DGRAM;
+    else    
+        sock_type = SOCK_STREAM;
+
+    if ((client_socket = socket(AF_INET, sock_type, 0)) < 0) // creating client socket for udp
+        exit_err("failed creating client socket");
+
+    struct sockaddr_in server_addr; // struct fot server information
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port_num);
+
+    if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
+        exit_err("Invalid ip addr");
+
+    if (mode == UDP)
     {
-        /*
-         * socket()
-         */
-        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
-            exit_err("failed creating client socket");
-
-        /*
-         * bind()
-         */
-        struct sockaddr_in server_addr; // struct fot server information
-
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(port_num);
-
-        if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
-            exit_err("Invalid ip addr");
-
         char buffer[UDP_LIMIT] = "\0";
 
         while (fgets(buffer, UDP_LIMIT, stdin))
@@ -154,9 +162,6 @@ int main(int argc, char *argv[])
 
             memcpy(buffer, temp, UDP_LIMIT);
 
-            /*
-             * sendto()
-             */
             int bytes_tx = sendto(client_socket, buffer, strlen(buffer + REQUEST_OFFSET) + REQUEST_OFFSET, MSG_CONFIRM, (struct sockaddr *)&server_addr, sizeof(server_addr));
             if (bytes_tx < 0)
                 exit_err("send to FAILED");
@@ -181,18 +186,6 @@ int main(int argc, char *argv[])
 
     else
     {
-
-        if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
-            exit_err("failed creating client socket");
-
-        struct sockaddr_in server_addr;
-
-        server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(port_num);
-
-        if (inet_pton(AF_INET, host_ip.c_str(), &server_addr.sin_addr) <= 0) // validating ip addr of server
-            exit_err("Invalid ip addr");
-
         if (connect(client_socket, (const sockaddr *)&server_addr, sizeof(server_addr)) != 0)
             exit_err("connection with server failed");
 
