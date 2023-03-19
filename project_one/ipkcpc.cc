@@ -54,9 +54,10 @@ bool close_soc = false;
 
 void print_usage(void)
 {
-    cout << "The client is started using: ipkcpc -h <host> -p <port> -m <mode>\n";
-    cout << "where host is the IPv4 address of the server, port the server port,\n";
-    cout << "and mode either tcp or udp (e.g., ipkcpc -h 1.2.3.4 -p 2023 -m udp)\n";
+    cout << "ipkcpc -h [host ip] -p [port number] -m [mode]" << endl;
+    cout << "The client is started using: ipkcpc -h <host> -p <port> -m <mode>"<< endl;
+    cout << "where host is the IPv4 address of the server, port the server port"<< endl;
+    cout << "and mode either tcp or udp (e.g., ipkcpc -h 1.2.3.4 -p 2023 -m udp)"<< endl;
 }
 
 void exit_err(string msg)
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
         print_usage();
 
     else if(argc != 7)
-        exit_err("bad # of args,use as ipkcpc -h 1.2.3.4 -p 2023 -m udp");
+        exit_err("bad # of args, use as ipkcpc -h [host ip] -p [port number] -m [mode]");
 
     for(int i = 1; i < argc; i++)//options processing
     {
@@ -111,14 +112,14 @@ int main(int argc, char *argv[])
             host_ip = argv[++i];
             regex reg("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(.(?!$)|$)){4}$");//regex fot ip
             if(!regex_match(host_ip,reg))// if not match exit
-                exit_err("poorly formated ip addr");
+                exit_err("poorly formated ip addr 0.0.0.0 - 255.255.255.255");
         }
 
         else if (string(argv[i]) == "-p")
         {
             port_num = atoi(argv[++i]);
             if (port_num < 1 || port_num > 65535)//ports num can be <1,65535>,
-                exit_err("poorly formated port number");
+                exit_err("poorly formated port number (1;65535)");
         }
 
         else if (string(argv[i]) == "-m")
@@ -132,20 +133,21 @@ int main(int argc, char *argv[])
             else if (regex_match(argv[i], reg_tcp))
                 mode = TCP;
             else
-                exit_err("poorly formated mode");
+                exit_err("poorly formated mode (tcp|udp))");
         }
-        else exit_err("poorly chosen args");
+        else
+            exit_err("poorly chosen args, use as ipkcpc -h [host ip] -p [port number] -m [mode]");
     }
     
     //socket()
     if(mode == UDP)
     {
-        if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+        if((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
     }
     else
     {
-        if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
+        if((client_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating client socket");
     } 
     close_soc = true;
