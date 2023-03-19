@@ -1,3 +1,5 @@
+- ipkcpc.cc: fix tcp sokcet
+- Makefile: added make win; README.md: added
 - generated CHANGELOG.md
 - ipkcpc.cc: refactoring
 - ipkcpc.cc: added info about licnese

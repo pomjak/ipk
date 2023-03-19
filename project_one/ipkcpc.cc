@@ -1,5 +1,5 @@
 /*
- * IPK Project 1: IPK Calculator Protocol
+ * IPK Project 1: IPK Calculator Protocol Client
  * Author: xpomsa00
  * Copyright (C) 2023 Pomsar Jakub FIT VUT
  *
@@ -131,7 +131,8 @@ int main(int argc, char *argv[])
         }
         else exit_err("poorly chosen args");
     }
-        
+    
+    //socket()
     if(mode == UDP)
     {
         if ((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
@@ -143,6 +144,7 @@ int main(int argc, char *argv[])
             exit_err("failed creating client socket");
     } 
         
+    //bind()
     struct sockaddr_in server_addr; // struct fot server information
 
     server_addr.sin_family = AF_INET;
