@@ -24,6 +24,9 @@ After receiving a message, it needs to be checked to determine whether it is a r
 Testing was performed to ensure that the IPKCPC client was functioning as expected. Basic functionality and error handling were tested manually on different machines, using different implementations of the IPK server (including variations created by other students), as well as on a virtual machine running the official provided server. 
 
 The results of the tests were analyzed to identify any issues or areas for improvement. Any issues found during testing were addressed and resolved before the final submission of the implementation.
-
+![test0](tests/bad_args.png)
+![test1](tests/correct_tcp.png)
+![test2](tests/ctrl%2Bc_tcp.png)
+![test3](tests/correct_udp.png)
 ### Description of extra features
 Every argument that is compiled with the program undergoes preprocessing to ensure that it is in the appropriate format, in form of validation  using regexes or other checks before being used. This is done to prevent errors and ensure that the program functions as expected.
