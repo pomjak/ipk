@@ -51,7 +51,10 @@ using namespace std;
 int client_socket; //global variables for signal handling
 int mode;
 bool close_soc = false;
-
+/**
+ * @brief prints usage
+ * 
+ */
 void print_usage(void)
 {
     cout << "ipkcpc -h [host ip] -p [port number] -m [mode]" << endl;
@@ -59,7 +62,11 @@ void print_usage(void)
     cout << "where host is the IPv4 address of the server, port the server port"<< endl;
     cout << "and mode either tcp or udp (e.g., ipkcpc -h 1.2.3.4 -p 2023 -m udp)"<< endl;
 }
-
+/**
+ * @brief printd msg to stderr , if socket was opened closes it
+ * 
+ * @param msg to be printed out
+ */
 void exit_err(string msg)
 {
     cerr << msg << endl;
@@ -67,7 +74,11 @@ void exit_err(string msg)
         close(client_socket);
     exit(EXIT_FAILURE);
 }
-
+/**
+ * @brief handler for sigint,if mode is TCP, says BYE to server , if socket was opened closes it
+ *
+ * @param signum
+ */
 void signal_callback_handler(int signum)
 {
 
@@ -139,7 +150,7 @@ int main(int argc, char *argv[])
             exit_err("poorly chosen args, use as ipkcpc -h [host ip] -p [port number] -m [mode]");
     }
     
-    //socket()
+    //init socket depending on chosen protocol
     if(mode == UDP)
     {
         if((client_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
