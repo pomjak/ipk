@@ -1,3 +1,8 @@
+- README.md: added spacing; ipkcpc.cc: added comments for functions
+- READAME.md: added examples of executed tests
+- tests added png files
+- ipkcpc.cc: refactoring error msgs  with check of args
+- README.md: finishing;CHANGELOG.md: upadted; ipkcpc.cc:closing socket in exit_err()
 - README.md: init
 - ipkcpc.cc: fix tcp sokcet
 - Makefile: added make win; README.md: added
