@@ -33,11 +33,7 @@ void print_usage(void)
     cout << "The server will use the appropriate protocol variant depending on the selected mode (binary for UDP, textual for TCP)" << endl;
     cout << "It should be able to handle more than one client at the same time." << endl;
 }
-/**
- * @brief printd msg to stderr , if socket was opened closes it
- *
- * @param msg to be printed out
- */
+
 void exit_err(string msg)
 {
     cerr << msg << endl;
@@ -45,18 +41,13 @@ void exit_err(string msg)
         close(client_socket);
     exit(EXIT_FAILURE);
 }
-/**
- * @brief handler for sigint,if mode is TCP, says BYE to server , if socket was opened closes it
- *
- * @param signum
- */
+
 void signal_callback_handler(int signum)
 {
-
     if (mode == TCP)
     {
         send(client_socket, "BYE\n", strlen("BYE\n"), 0); // if tcp, send BYE
-        cout << "BYE\n";
+        // SEND BYE
 
         char buffer[TCP_LIMIT];
         recv(client_socket, buffer, TCP_LIMIT, 0); // and wait for BYE from server
@@ -66,4 +57,57 @@ void signal_callback_handler(int signum)
         close(client_socket);
     // terminate program
     exit(signum);
+}
+
+void arg_processing(int argc, char *argv[], string &ip, int* port)
+{
+    if (argc == 2 && string(argv[1]) == "--help")
+        print_usage();
+
+    else if (argc != 7)
+        exit_err("bad # of args, use as ipkcpd -h [host ip] -p [port number] -m [mode]");
+
+    for (int i = 1; i < argc; i++) // options processing
+    {
+        if (string(argv[i]) == "-h")
+        {
+            ip = argv[++i];
+            regex reg("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(.(?!$)|$)){4}$"); // regex fot ip
+            if (!regex_match(ip, reg))                                      // if not match exit
+                exit_err("poorly formated ip addr 0.0.0.0 - 255.255.255.255");
+        }
+
+        else if (string(argv[i]) == "-p")
+        {
+            *port = atoi(argv[++i]);
+            if (*port < 1 || *port > 65535) // ports num can be <1,65535>,
+                exit_err("poorly formated port number (1;65535)");
+        }
+
+        else if (string(argv[i]) == "-m")
+        {
+            i++;
+            regex reg_udp("^udp$");
+            regex reg_tcp("^tcp$");
+
+            if (regex_match(argv[i], reg_udp))
+                mode = UDP;
+            else if (regex_match(argv[i], reg_tcp))
+                mode = TCP;
+            else
+                exit_err("poorly formated mode (tcp|udp))");
+        }
+        else
+            exit_err("poorly chosen args, use as ipkcpc -h [host ip] -p [port number] -m [mode]");
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    string ip;
+    int port_num = 0;
+
+    arg_processing(argc,argv,ip,&port_num);
+    
+    return EXIT_SUCCESS;
 }
