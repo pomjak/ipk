@@ -7,3 +7,10 @@
 - .gitignore
 - ipkcp_test.udp
 - tests/
+
+### project_two/ IOTA: Server for Remote Calculator
+- ipkcpd.cc
+- Makefile
+- CHANGELOG.md
+- README.md
+- .gitignore

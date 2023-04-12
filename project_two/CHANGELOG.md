@@ -1,0 +1,3 @@
+- ipkcpd.cc: arg processing completed
+- added basic structure
+- creating folder for project 2

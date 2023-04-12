@@ -15,4 +15,4 @@ clean:
 	$(RM) $(OBJS)
 
 changelog:
-	git log --pretty="- %s" > CHANGELOG.md
+	git log --pretty="- %s" | head -n -37 > CHANGELOG.md
