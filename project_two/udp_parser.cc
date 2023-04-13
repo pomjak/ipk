@@ -24,7 +24,7 @@ int Parser::parseExpr()
         else if (op == "/")
         {
             if (right == 0)
-                throw runtime_error("PARSER: parseQuery: Division by zero");
+                throw runtime_error("PARSER: parseExpr: Division by zero");
             else
                 return left / right;
         }
@@ -66,6 +66,11 @@ int Parser::parseQuery(void)
             else
                 return left / right; 
         }
+    }
+    else if (token.type == NUMBER)
+    {
+        cout << "token type is number" << endl;
+        return stoi(token.value);
     }
 
     throw runtime_error("PARSER: parseQuery: Invalid query");
