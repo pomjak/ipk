@@ -121,6 +121,67 @@ void arg_processing(int argc, char *argv[], string &ip, unsigned int* port)
     }
 }
 
+void set_up_socket(void)
+{
+    if (mode == UDP)
+    {
+        if ((srv_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating server socket");
+    }
+    else
+    { 
+        if ((srv_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
+            exit_err("failed creating server socket");
+    }
+        
+
+    close_soc = true;
+}
+
+void bind(unsigned int port)
+{
+    struct sockaddr_in server_addr;
+
+    memset(&server_addr, 0, sizeof(server_addr));
+
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_port = htons(port);
+
+    if (bind(srv_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+        exit_err("bind failed");
+}
+
+int verify_request(char *request)
+{
+    int payload_len = 0;
+
+    if (request[0] == OPCODE_REQUEST)
+    {
+        cout << "request ok" << endl;
+
+        payload_len = (int)request[1];
+
+        request[REQUEST_OFFSET + payload_len + 1] = '\0';
+
+        cout << "REQ:" << request + REQUEST_OFFSET << endl;
+        
+    }
+
+    else exit_err("recieved response");
+
+    return payload_len; 
+}
+
+void format_response(char *response, bool status, const char *msg)
+{
+    char temp[UDP_LIMIT] = {OPCODE_RESPONSE, status, (char)strlen(msg)};
+
+    strcat(temp + RESPONSE_OFFSET, msg); // adding msg behind opcode ,status and lenght
+
+    memcpy(response, temp, UDP_LIMIT); // response <== temp
+}
+
 int main(int argc, char *argv[])
 {
     string ip;
@@ -128,21 +189,9 @@ int main(int argc, char *argv[])
 
     arg_processing(argc,argv,ip,&port_num);
 
-    if ((srv_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
-        exit_err("failed creating server socket");
+    set_up_socket();
 
-    close_soc = true;
-
-    struct sockaddr_in server_addr;
-
-    memset(&server_addr, 0, sizeof(server_addr));
-
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_port = htons(port_num);
-
-    if (bind(srv_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-        exit_err("bind failed");
+    bind(port_num);
 
     struct sockaddr_in client_addr;
     socklen_t addr_size = sizeof(client_addr);
@@ -157,39 +206,18 @@ int main(int argc, char *argv[])
     {
         bytes_rx = recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size);
         if (bytes_rx < 0)
-            exit_err("ERROR: recvfrom");\
+            exit_err("ERROR: recvfrom");
 
-        buffer[bytes_rx] = '\0';
+        verify_request(buffer);
 
-        if(buffer[0] == OPCODE_REQUEST)
-        {   
-            cout<< "request ok"<<endl;
+        char response[UDP_LIMIT];
 
-            int payload_len = (int)buffer[1];
-
-            buffer[REQUEST_OFFSET + payload_len + 1] = '\0';
-
-            cout << "REQ:" << buffer + REQUEST_OFFSET << endl; // OFFSET skips 1st 2BYTES of data
-        }
-        else
-            cout << "its response" << endl;
-
-        char response[UDP_LIMIT] = "hello there";
-
-        char temp[UDP_LIMIT] = {OPCODE_RESPONSE,STATUS_OKEY, (char)strlen(response)};
-
-        strcat(temp + RESPONSE_OFFSET, response); // adding input from stdin behind opcode and lenght
-
-        memcpy(response, temp, UDP_LIMIT); // response <== temp
+        format_response(response,STATUS_OKEY,"hi from function");
 
         bytes_tx = sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size);
         if (bytes_tx < 0)
             exit_err("ERROR: sendto");
     }
-
-
-    
-    
 
     return EXIT_SUCCESS;
 }
