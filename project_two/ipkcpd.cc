@@ -178,9 +178,9 @@ int main(int argc, char *argv[])
 
         char temp[UDP_LIMIT] = {OPCODE_RESPONSE,STATUS_OKEY, (char)strlen(response)};
 
-        strcat(temp + REQUEST_OFFSET, response); // adding input from stdin behind opcode and lenght
+        strcat(temp + RESPONSE_OFFSET, response); // adding input from stdin behind opcode and lenght
 
-        memcpy(response, temp, UDP_LIMIT); // buffer <== temp
+        memcpy(response, temp, UDP_LIMIT); // response <== temp
 
         bytes_tx = sendto(srv_socket, response, strlen(response), 0, addr, addr_size);
         if (bytes_tx < 0)
