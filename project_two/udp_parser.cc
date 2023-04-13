@@ -31,8 +31,12 @@ int Parser::parseExpr()
     }
     else if (token.type == NUMBER)
     {
-        cout << "token type is number" << endl;
         return stoi(token.value);
+    }
+    else if (token.type == OPERATOR && token.value == "-")
+    {
+        int num = parseExpr();
+        return -num; 
     }
     
     throw runtime_error("PARSER: parseExpr: Invalid expression");
