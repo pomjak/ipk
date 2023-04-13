@@ -44,6 +44,8 @@ int verify_request(char *request);
 
 void format_response(char *response, bool status, const char *msg);
 
+int calculate(string input);
+
 void udp_communication();
 
 #endif

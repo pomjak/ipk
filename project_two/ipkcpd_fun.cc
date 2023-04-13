@@ -1,4 +1,6 @@
 #include "ipkcpd.h"
+#include "udp_parser.h"
+#include "udp_lexer.h"
 
 void print_usage(void)
 {
@@ -137,6 +139,24 @@ void format_response(char *response, bool status, const char *msg)
     memcpy(response, temp, UDP_LIMIT); // response <== temp
 }
 
+int calculate(string input)
+{
+    int result = 0;
+    try
+    {
+        Lexer lexer(input);
+        Parser parser(lexer);
+        result = parser.parseQuery();
+    }
+
+    catch (const runtime_error &e)
+    {
+        exit_err("Could not parse that ");
+    }
+
+    return result;
+}
+
 void udp_communication()
 {
     struct sockaddr_in client_addr;
@@ -154,7 +174,7 @@ void udp_communication()
 
         char response[UDP_LIMIT];
 
-        format_response(response, STATUS_OKEY, "hi from function");
+        format_response(response, STATUS_OKEY, " ");
 
         if (sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size) < 0)
             exit_err("ERROR: sendto");

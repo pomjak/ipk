@@ -27,24 +27,10 @@ bool close_soc = false;
 
 int main(int argc, char *argv[])
 {
-    //testing
-    string input;
-    while(cin)
-    {
-        try
-        {
-            getline(cin, input);
-            Lexer lexer(input);
-            Parser parser(lexer);
-            int result = parser.parseQuery();
-            cout << result << endl;
-        }
-
-        catch (const runtime_error e)
-        {
-            exit_err("Could not parse that ");
-        }
-    }
+    
+    
+    
+    
 
     string ip;
     unsigned int port_num = 0;
