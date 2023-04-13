@@ -131,6 +131,8 @@ int main(int argc, char *argv[])
     if ((srv_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) // creating client socket for udp
         exit_err("failed creating server socket");
 
+    close_soc = true;
+
     struct sockaddr_in server_addr;
 
     memset(&server_addr, 0, sizeof(server_addr));
@@ -149,17 +151,43 @@ int main(int argc, char *argv[])
     char buffer[UDP_LIMIT] = "\0";
     int bytes_rx, bytes_tx;
 
-    
-    bytes_rx = recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size);
-    if (bytes_rx < 0)
-        exit_err("ERROR: recvfrom");
+    cout<<"listening..."<<endl;
+
+    while(true)
+    {
+        bytes_rx = recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size);
+        if (bytes_rx < 0)
+            exit_err("ERROR: recvfrom");\
+
+        buffer[bytes_rx] = '\0';
+
+        if(buffer[0] == OPCODE_REQUEST)
+        {   
+            cout<< "request ok"<<endl;
+
+            int payload_len = (int)buffer[1];
+
+            buffer[REQUEST_OFFSET + payload_len + 1] = '\0';
+
+            cout << "REQ:" << buffer + REQUEST_OFFSET << endl; // OFFSET skips 1st 2BYTES of data
+        }
+        else
+            cout << "its response" << endl;
+
+        buffer[0] = OPCODE_RESPONSE;
+        buffer[1] = STATUS_OKEY;
+        buffer[2] = char(2);
+        buffer[3] = 'h'; 
+        buffer[4] = 'i';
+        buffer[5] = '\0';
+
+        bytes_tx = sendto(srv_socket, buffer, strlen(buffer), 0, addr, addr_size);
+        if (bytes_tx < 0)
+            exit_err("ERROR: sendto");
+    }
+
 
     
-
-
-    // bytes_tx = sendto(srv_socket, buffer, strlen(buffer), 0, addr, addr_size);
-    // if (bytes_tx < 0)
-    //     exit_err("ERROR: sendto");
     
 
     return EXIT_SUCCESS;
