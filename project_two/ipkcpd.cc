@@ -182,6 +182,30 @@ void format_response(char *response, bool status, const char *msg)
     memcpy(response, temp, UDP_LIMIT); // response <== temp
 }
 
+void udp_communication()
+{
+    struct sockaddr_in client_addr;
+    socklen_t addr_size = sizeof(client_addr);
+    struct sockaddr *addr = (struct sockaddr *)&client_addr;
+
+    char buffer[UDP_LIMIT] = "\0";
+
+    while (true)
+    {
+        if (recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size) < 0)
+            exit_err("ERROR: recvfrom");
+
+        verify_request(buffer);
+
+        char response[UDP_LIMIT];
+
+        format_response(response, STATUS_OKEY, "hi from function");
+
+        if (sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size) < 0)
+            exit_err("ERROR: sendto");
+    }
+}
+
 int main(int argc, char *argv[])
 {
     string ip;
@@ -193,31 +217,14 @@ int main(int argc, char *argv[])
 
     bind(port_num);
 
-    struct sockaddr_in client_addr;
-    socklen_t addr_size = sizeof(client_addr);
-    struct sockaddr *addr = (struct sockaddr *)&client_addr;
+    if(mode == UDP)
+        udp_communication();
 
-    char buffer[UDP_LIMIT] = "\0";
-    int bytes_rx, bytes_tx;
+    else if(mode == TCP){}
+        // TCP COMM
 
-    cout<<"listening..."<<endl;
-
-    while(true)
-    {
-        bytes_rx = recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size);
-        if (bytes_rx < 0)
-            exit_err("ERROR: recvfrom");
-
-        verify_request(buffer);
-
-        char response[UDP_LIMIT];
-
-        format_response(response,STATUS_OKEY,"hi from function");
-
-        bytes_tx = sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size);
-        if (bytes_tx < 0)
-            exit_err("ERROR: sendto");
-    }
+    else
+        exit_err("main:unrecognized mode");
 
     return EXIT_SUCCESS;
 }
