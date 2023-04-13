@@ -14,6 +14,7 @@ enum TokenType
     RPAREN,
     OPERATOR,
     NUMBER,
+    SP,
     END
 };
 
