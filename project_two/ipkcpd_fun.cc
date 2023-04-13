@@ -143,22 +143,14 @@ string calculate(string input)
 {
     string int_2_str;
 
-    try
-    {
-        Lexer lexer(input);
+    
+    Lexer lexer(input);
 
-        Parser parser(lexer);
+    Parser parser(lexer);
 
-        int result = parser.parseQuery();
+    int result = parser.parseQuery();
 
-        int_2_str = to_string(result);   // convert from int to string 
-    }
-
-    catch (const runtime_error &e)
-    {
-        cerr << e.what() << endl;
-        exit_err("Could not parse that ");
-    }
+    int_2_str = to_string(result);   // convert from int to string 
 
     return int_2_str;
 }
@@ -179,12 +171,24 @@ void udp_communication()
         verify_request(buffer);
 
         string clean_exp(buffer + REQUEST_OFFSET);
-
-        string result = calculate(clean_exp); // calculate and return result
-        
+        string result;
         char response[UDP_LIMIT];
+        bool err = false;
 
-        format_response(response, STATUS_OKEY, result);
+        try
+        {
+            result = calculate(clean_exp); // calculate and return result
+        }
+
+        catch (const runtime_error &e)
+        {
+            cerr << e.what() << endl;
+            format_response(response, STATUS_ERROR, "Could not parse that");
+            err = true;
+        }
+
+        if(!err)
+            format_response(response, STATUS_OKEY, result);
 
         if (sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size) < 0)
             exit_err("ERROR: sendto");
