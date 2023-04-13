@@ -12,7 +12,7 @@ int Parser::parseExpr()
         lexer.getNextToken();// SP
         int right = parseExpr();//num
         lexer.getNextToken();//)
-        
+
         if (op == "+")
             return left + right;
         else if (op == "-")
@@ -20,13 +20,20 @@ int Parser::parseExpr()
     
         else if (op == "*")
             return left * right;
-        
+
         else if (op == "/")
-            return left / right;
-        
+        {
+            if (right == 0)
+                throw runtime_error("PARSER: parseQuery: Division by zero");
+            else
+                return left / right;
+        }
     }
     else if (token.type == NUMBER)
+    {
+        cout << "token type is number" << endl;
         return stoi(token.value);
+    }
     
     throw runtime_error("PARSER: parseExpr: Invalid expression");
 }
@@ -53,7 +60,12 @@ int Parser::parseQuery(void)
             return left * right;
         
         else if (op == "/")
-            return left / right; 
+        {
+            if(right == 0)
+                throw runtime_error("PARSER: parseQuery: Division by zero");
+            else
+                return left / right; 
+        }
     }
 
     throw runtime_error("PARSER: parseQuery: Invalid query");
