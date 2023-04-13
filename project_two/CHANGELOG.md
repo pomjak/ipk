@@ -1,3 +1,11 @@
+- ipkcpd.cc: udp: minor refactor and bug fixes
+- ipkcpd.cc: udp: refactoring code to functions
+- ipkcpd.cc: udp: more bug fixes
+- ipkcpd.cc: udp:fix response offset
+- udp connection testing
+- ipkcpd.cc: bug fixes udp
+- ipkcpd.cc: implementing udp communication, connection is stable
+- updating main readme.md, creating changelog.md
 - ipkcpd.cc: arg processing completed
 - added basic structure
 - creating folder for project 2
