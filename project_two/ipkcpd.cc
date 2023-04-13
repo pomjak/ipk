@@ -174,14 +174,15 @@ int main(int argc, char *argv[])
         else
             cout << "its response" << endl;
 
-        buffer[0] = OPCODE_RESPONSE;
-        buffer[1] = STATUS_OKEY;
-        buffer[2] = char(2);
-        buffer[3] = 'h'; 
-        buffer[4] = 'i';
-        buffer[5] = '\0';
+        char response[UDP_LIMIT] = "hello there";
 
-        bytes_tx = sendto(srv_socket, buffer, strlen(buffer), 0, addr, addr_size);
+        char temp[UDP_LIMIT] = {OPCODE_RESPONSE,STATUS_OKEY, (char)strlen(response)};
+
+        strcat(temp + REQUEST_OFFSET, response); // adding input from stdin behind opcode and lenght
+
+        memcpy(response, temp, UDP_LIMIT); // buffer <== temp
+
+        bytes_tx = sendto(srv_socket, response, strlen(response), 0, addr, addr_size);
         if (bytes_tx < 0)
             exit_err("ERROR: sendto");
     }
