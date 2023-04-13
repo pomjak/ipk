@@ -5,8 +5,15 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <algorithm>
 
 #include"udp_lexer.h"
+
+struct Num
+{
+    int num;
+    int denom;
+};
 
 using namespace std;
 
@@ -18,9 +25,9 @@ class Parser
     public:
         Parser(Lexer lexer) : lexer(lexer) {}
 
-        int parseExpr(void);
+        Num parseExpr(void);
 
-        int parseQuery(void);
+        Num parseQuery(void);
 };
 
 #endif

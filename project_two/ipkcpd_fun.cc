@@ -148,9 +148,15 @@ string calculate(string input)
 
     Parser parser(lexer);
 
-    int result = parser.parseQuery();
+    Num result = parser.parseQuery();
 
-    int_2_str = to_string(result);   // convert from int to string 
+    int_2_str = to_string(result.num);// convert from int to string 
+    
+    if(result.denom)
+    {
+        int_2_str.append("/");
+        int_2_str.append(to_string(result.denom));
+    }
 
     return int_2_str;
 }
