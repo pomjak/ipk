@@ -130,34 +130,37 @@ int verify_request(char *request)
     return payload_len; 
 }
 
-void format_response(char *response, bool status, const char *msg)
+void format_response(char *response, bool status, string msg)
 {
-    char temp[UDP_LIMIT] = {OPCODE_RESPONSE, status, (char)strlen(msg)};
+    char temp[UDP_LIMIT] = {OPCODE_RESPONSE, status, (char)msg.length()};
 
-    strcat(temp + RESPONSE_OFFSET, msg); // adding msg behind opcode ,status and lenght
+    strcat(temp + RESPONSE_OFFSET, msg.c_str()); // adding msg behind opcode ,status and lenght
 
     memcpy(response, temp, UDP_LIMIT); // response <== temp
 }
 
-const char * calculate(string input)
+string calculate(string input)
 {
-    int result = 0;
-    const char * msg;
+    string int_2_str;
+
     try
     {
         Lexer lexer(input);
+
         Parser parser(lexer);
-        result = parser.parseQuery();
-        string int_2_str = to_string(result);   // convert from int to string
-        msg = int_2_str.c_str();                // so it can be converted to const char*
+
+        int result = parser.parseQuery();
+
+        int_2_str = to_string(result);   // convert from int to string 
     }
 
     catch (const runtime_error &e)
     {
+        cerr << e.what() << endl;
         exit_err("Could not parse that ");
     }
 
-    return msg;
+    return int_2_str;
 }
 
 void udp_communication()
@@ -175,9 +178,10 @@ void udp_communication()
 
         verify_request(buffer);
 
-        const char* result = calculate(string(buffer)); //calculate and return int result
-        
+        string clean_exp(buffer + REQUEST_OFFSET);
 
+        string result = calculate(clean_exp); // calculate and return result
+        
         char response[UDP_LIMIT];
 
         format_response(response, STATUS_OKEY, result);
