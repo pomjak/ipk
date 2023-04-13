@@ -42,9 +42,9 @@ void bind(unsigned int port);
 
 int verify_request(char *request);
 
-void format_response(char *response, bool status, const char *msg);
+void format_response(char *response, bool status, char *msg);
 
-int calculate(string input);
+const char *calculate(string input);
 
 void udp_communication();
 

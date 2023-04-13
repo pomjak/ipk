@@ -139,14 +139,17 @@ void format_response(char *response, bool status, const char *msg)
     memcpy(response, temp, UDP_LIMIT); // response <== temp
 }
 
-int calculate(string input)
+const char * calculate(string input)
 {
     int result = 0;
+    const char * msg;
     try
     {
         Lexer lexer(input);
         Parser parser(lexer);
         result = parser.parseQuery();
+        string int_2_str = to_string(result);   // convert from int to string
+        msg = int_2_str.c_str();                // so it can be converted to const char*
     }
 
     catch (const runtime_error &e)
@@ -154,7 +157,7 @@ int calculate(string input)
         exit_err("Could not parse that ");
     }
 
-    return result;
+    return msg;
 }
 
 void udp_communication()
@@ -172,9 +175,12 @@ void udp_communication()
 
         verify_request(buffer);
 
+        const char* result = calculate(string(buffer)); //calculate and return int result
+        
+
         char response[UDP_LIMIT];
 
-        format_response(response, STATUS_OKEY, " ");
+        format_response(response, STATUS_OKEY, result);
 
         if (sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size) < 0)
             exit_err("ERROR: sendto");

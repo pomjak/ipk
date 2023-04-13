@@ -27,11 +27,6 @@ bool close_soc = false;
 
 int main(int argc, char *argv[])
 {
-    
-    
-    
-    
-
     string ip;
     unsigned int port_num = 0;
 
