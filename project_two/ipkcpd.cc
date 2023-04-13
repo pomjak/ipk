@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 
         memcpy(response, temp, UDP_LIMIT); // response <== temp
 
-        bytes_tx = sendto(srv_socket, response, strlen(response), 0, addr, addr_size);
+        bytes_tx = sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size);
         if (bytes_tx < 0)
             exit_err("ERROR: sendto");
     }
