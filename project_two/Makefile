@@ -2,7 +2,7 @@ CXX=g++
 RM=rm -f
 CPPFLAGS= -O2 -std=c++20 -Wall -Wextra -Wpedantic 
 DEBUG= -g
-SRCS=ipkcpd.cc ipkcpd_fun.cc udp_lexer.cc udp_parser.cc frac.cc
+SRCS=src/ipkcpd.cc src/ipkcpd_fun.cc src/udp_lexer.cc src/udp_parser.cc src/frac.cc
 OBJS=ipkcpd
 
 make:$(SRCS)
