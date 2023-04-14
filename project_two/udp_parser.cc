@@ -5,14 +5,22 @@
 Frac Parser::parseExpr()
 {
     Token token = lexer.getNextToken();
-    if (token.type == LPAREN) //(
+    if (token.type == LPAREN) 
     {
-        string op = lexer.getNextToken().value;// op
-        lexer.getNextToken();// SP
-        Frac left = parseExpr();// num
-        lexer.getNextToken();// SP
-        Frac right = parseExpr();//num
-        lexer.getNextToken();//)
+        string op = lexer.getNextToken().value;
+
+        if (lexer.getNextToken().type != SP)
+            throw runtime_error("PARSER: parseExpr: missing space");
+
+        Frac left = parseExpr();
+
+        if (lexer.getNextToken().type != SP)
+            throw runtime_error("PARSER: parseExpr: missing space");
+
+        Frac right = parseExpr();
+
+        if(lexer.getNextToken().type != RPAREN)
+            throw runtime_error("PARSER: parseExpr: missing right parenthesis");
 
         if (op == "+")
             return left + right;
@@ -27,11 +35,14 @@ Frac Parser::parseExpr()
         {
             return left / right;
         }
+        else
+            throw runtime_error("PARSER: parseExpr: unrecognized operator");
     }
     else if (token.type == NUMBER)
     {
         return Frac{stoi(token.value),1};
     }
+
     else if (token.type == OPERATOR && token.value == "-")
     {
         Frac num = parseExpr();
@@ -46,12 +57,20 @@ Frac Parser::parseQuery(void)
     Token token = lexer.getNextToken();
     if (token.type == LPAREN) //(
     {
-        string op = lexer.getNextToken().value; // op
-        lexer.getNextToken();                   // SP
-        Frac left = parseExpr();                // num
-        lexer.getNextToken();                   // SP
-        Frac right = parseExpr();               // num
-        lexer.getNextToken();                   //)
+        string op = lexer.getNextToken().value;
+
+        if (lexer.getNextToken().type != SP)
+            throw runtime_error("PARSER: parseQuery: missing space");
+
+        Frac left = parseExpr();
+
+        if (lexer.getNextToken().type != SP)
+            throw runtime_error("PARSER: parseQuery: missing space");
+
+        Frac right = parseExpr();
+
+        if (lexer.getNextToken().type != RPAREN)
+            throw runtime_error("PARSER: parseQuery: missing right parenthesis");
 
         if (op == "+")
             return left + right;
@@ -66,6 +85,8 @@ Frac Parser::parseQuery(void)
         {
             return left / right;
         }
+        else
+            throw runtime_error("PARSER: parseExpr: unrecognized operator");
     }
     else if (token.type == NUMBER)
     {
