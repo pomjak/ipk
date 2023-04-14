@@ -123,7 +123,6 @@ int verify_request(char *request)
         request[REQUEST_OFFSET + payload_len + 1] = '\0';
 
         cout << "REQ:" << request + REQUEST_OFFSET << endl;
-        
     }
 
     else exit_err("recieved response");
@@ -149,7 +148,10 @@ string calculate(string input)
 
     Parser parser(lexer);
 
-    Frac result = parser.parseQuery();
+    Frac result = parser.parseExpr();
+
+    if (result.get_num() < 0)
+        throw runtime_error("CALCULATE: result is less than 0");
 
     int_2_str = to_string(result.get_num());//get int num from fraction and convert it into string
     
@@ -172,6 +174,7 @@ void udp_communication()
 
     while (true)
     {
+        memset(buffer, '\0', UDP_LIMIT * sizeof(buffer[0]));
         if (recvfrom(srv_socket, buffer, UDP_LIMIT, 0, addr, &addr_size) < 0)
             exit_err("ERROR: recvfrom");
 
@@ -180,6 +183,7 @@ void udp_communication()
         string clean_exp(buffer + REQUEST_OFFSET);
         string result;
         char response[UDP_LIMIT];
+        memset(response, '\0', UDP_LIMIT * sizeof(buffer[0]));
         bool err = false;
 
         try
@@ -189,8 +193,7 @@ void udp_communication()
 
         catch (const runtime_error &e)
         {
-            cerr << e.what() << endl;
-            format_response(response, STATUS_ERROR, "Could not parse that");
+            format_response(response, STATUS_ERROR, e.what());
             err = true;
         }
 
@@ -200,4 +203,9 @@ void udp_communication()
         if (sendto(srv_socket, response, strlen(response + RESPONSE_OFFSET) + RESPONSE_OFFSET, 0, addr, addr_size) < 0)
             exit_err("ERROR: sendto");
     }
+}
+
+void tcp_communication()
+{
+    cout << "hello world" << endl;
 }

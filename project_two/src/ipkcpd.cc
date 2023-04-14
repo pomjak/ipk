@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     if(mode == UDP)
         udp_communication();
 
-    else if(mode == TCP){}
-        // TCP COMM
+    else if(mode == TCP)
+        tcp_communication();
 
     else exit_err("main:unrecognized mode");
 

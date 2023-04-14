@@ -46,6 +46,8 @@ void format_response(char *response, bool status, string msg);
 
 string calculate(string input);
 
-void udp_communication();
+void udp_communication(void);
+
+void tcp_communication(void);
 
 #endif
