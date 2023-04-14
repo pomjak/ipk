@@ -32,7 +32,9 @@ Frac Parser::parseExpr()
             return left * right;
 
         else if (op == "/")
-        {
+        {   
+            if(right.get_num() == 0)
+                throw runtime_error("PARSER: parseExpr: division by 0");
             return left / right;
         }
         else
@@ -83,6 +85,8 @@ Frac Parser::parseQuery(void)
 
         else if (op == "/")
         {
+            if (right.get_num() == 0)
+                throw runtime_error("PARSER: parseExpr: division by 0");
             return left / right;
         }
         else
