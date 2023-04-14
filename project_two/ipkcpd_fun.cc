@@ -1,6 +1,7 @@
 #include "ipkcpd.h"
 #include "udp_parser.h"
 #include "udp_lexer.h"
+#include "frac.h"
 
 void print_usage(void)
 {
@@ -148,14 +149,14 @@ string calculate(string input)
 
     Parser parser(lexer);
 
-    Num result = parser.parseQuery();
+    Frac result = parser.parseQuery();
 
-    int_2_str = to_string(result.num);// convert from int to string 
+    int_2_str = to_string(result.get_num());//get int num from fraction and convert it into string
     
-    if(result.denom)
+    if(result.is_frac())
     {
         int_2_str.append("/");
-        int_2_str.append(to_string(result.denom));
+        int_2_str.append(to_string(result.get_denom()));
     }
 
     return int_2_str;

@@ -5,15 +5,15 @@
 #include <string>
 #include <vector>
 #include <cctype>
-#include <algorithm>
 
 #include"udp_lexer.h"
+#include"frac.h"
 
-struct Num
-{
-    int num;
-    int denom;
-};
+// struct Num
+// {
+//     int num;
+//     int denom;
+// };
 
 using namespace std;
 
@@ -25,9 +25,10 @@ class Parser
     public:
         Parser(Lexer lexer) : lexer(lexer) {}
 
-        Num parseExpr(void);
+        Frac parseExpr(void);
 
-        Num parseQuery(void);
+        Frac parseQuery(void);
+
 };
 
 #endif
