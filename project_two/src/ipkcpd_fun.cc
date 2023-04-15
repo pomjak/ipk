@@ -31,7 +31,16 @@ void signal_callback_handler(int signum)
         cout << buffer;
     }
     if (close_soc)
-        close(srv_socket);
+    {
+        for (int i = 0; i < nfds; i++)
+        {
+            if (fds[i].fd >= 0)
+            {
+                send(fds[i].fd, "BYE\n", strlen("BYE\n"), 0);
+                close(fds[i].fd);
+            }
+        }
+    }
     // terminate program
     exit(signum);
 }
@@ -94,6 +103,8 @@ void set_up_socket(void)
 
         setsockopt(srv_socket, SOL_SOCKET, SO_REUSEADDR,(char *)&enable, sizeof(enable));
         ioctl(srv_socket, FIONBIO, (char *)&enable);
+        int flags = fcntl(srv_socket, F_GETFL, 0);
+        fcntl(srv_socket, F_SETFL, flags | O_NONBLOCK);
     }   
         
 
@@ -207,7 +218,7 @@ void udp_communication()
     }
 }
 
-string tpc_verify(char *request, bool *hello, bool *close)
+string tcp_verify(char *request, bool *hello, bool *close)
 {
     cout << "REC:" << request << endl;
     if(string(request) == "HELLO\n")
@@ -253,14 +264,14 @@ string tcp_calculate(char *request, bool *close)
 void tcp_communication()
 {
     int rc;
-    int nfds = 1, curr = 0;
+    nfds = 1;
+    int curr = 0;
     int new_socket = -1;
     bool end = false, compress = false, close_conn = false;
     char buffer[TCP_LIMIT] = "\0";
 
-    struct pollfd fds[200];
 
-    listen(srv_socket, 32);
+    listen(srv_socket, MAX_CLIENTS);
     memset(fds, 0, sizeof(fds));
 
     fds[0].fd = srv_socket;
@@ -292,7 +303,7 @@ void tcp_communication()
                 end = true;
                 break;
             }
-            
+
             if (fds[i].fd == srv_socket)
             {
                 do
@@ -342,7 +353,7 @@ void tcp_communication()
                     string response;
 
                     if(!recieved_hello)
-                        response = tpc_verify(buffer, &recieved_hello, &close_conn);
+                        response = tcp_verify(buffer, &recieved_hello, &close_conn);
                     else
                         response = tcp_calculate(buffer, &close_conn);
 

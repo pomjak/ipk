@@ -8,6 +8,7 @@
 #include <regex>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>
 #include <sys/poll.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -25,10 +26,13 @@ using namespace std;
 #define STATUS_ERROR 1
 #define REQUEST_OFFSET 2  // offset for reading from udp request
 #define RESPONSE_OFFSET 3 // offset for writing into udp response
+#define MAX_CLIENTS 32
 
 extern int srv_socket; // global variables for signal handling
 extern int mode;
 extern bool close_soc ;
+extern struct pollfd fds[200];
+extern int nfds;
 
 void print_usage(void);
 
@@ -50,7 +54,7 @@ string calculate(string input);
 
 void udp_communication(void);
 
-string tpc_verify(char *request, bool *close);
+string tcp_verify(char *request, bool *close);
 
 string tcp_calculate(char *request,bool *close);
 

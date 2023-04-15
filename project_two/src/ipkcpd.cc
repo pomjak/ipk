@@ -21,9 +21,11 @@
 #include "udp_lexer.h"
 #include "udp_parser.h"
 
-int srv_socket; // global variables for signal handling
+int srv_socket = -1; // global variables for signal handling
 int mode;
 bool close_soc = false;
+struct pollfd fds[200];
+int nfds = 1;
 
 int main(int argc, char *argv[])
 {
