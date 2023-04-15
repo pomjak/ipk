@@ -6,14 +6,8 @@
 #include <vector>
 #include <cctype>
 
-#include"udp_lexer.h"
+#include"lexer.h"
 #include"frac.h"
-
-// struct Num
-// {
-//     int num;
-//     int denom;
-// };
 
 using namespace std;
 

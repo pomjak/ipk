@@ -18,8 +18,8 @@
  */
 
 #include "ipkcpd.h"
-#include "udp_lexer.h"
-#include "udp_parser.h"
+#include "lexer.h"
+#include "parser.h"
 
 int srv_socket = -1; // global variables for signal handling
 int mode;
