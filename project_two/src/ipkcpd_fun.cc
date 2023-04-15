@@ -210,15 +210,15 @@ void udp_communication()
 string tpc_verify(char *request, bool *hello, bool *close)
 {
     cout << "REC:" << request << endl;
-    if(string(request) == "HELLO")
+    if(string(request) == "HELLO\n")
     {
         *hello = true;
-        return "HELLO\0";
+        return "HELLO\n";
     }
     else 
     {
         *close = true;
-        return "BYE\0";
+        return "BYE\n";
     }
 }
 
@@ -227,15 +227,26 @@ string tcp_calculate(char *request, bool *close)
     if (!strncmp(request, "SOLVE ", strlen("SOLVE ")))
     {
         string result = "RESULT ";
-        string input = request + strlen("SOLVE ") - 1;
-        result.append(calculate(input));
-        result.append("\0");
+        string input = request + strlen("SOLVE ");
+        try
+        {
+            result.append(calculate(input));
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << endl;
+            *close = true;
+            return "BYE\n";
+        }
+        
+
+        result.append("\n");
         return result;
     }
     else
     {
         *close = true;
-        return "BYE\0";
+        return "BYE\n";
     }
 }
 
@@ -281,6 +292,7 @@ void tcp_communication()
                 end = true;
                 break;
             }
+            
             if (fds[i].fd == srv_socket)
             {
                 do
@@ -310,6 +322,7 @@ void tcp_communication()
                 bool recieved_hello = false;
                 do
                 {
+                    memset(buffer, '\0', TCP_LIMIT * sizeof(buffer[0]));
                     rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
                     if (rc < 0)
                     {
@@ -321,10 +334,9 @@ void tcp_communication()
                         break;
                     }
 
-                    if (rc == 0 || !strcmp(buffer, "BYE\0"))
+                    if (rc == 0 || !strcmp(buffer, "BYE\n"))
                     {
                         close_conn = true;
-                        break;
                     }
 
                     string response;
