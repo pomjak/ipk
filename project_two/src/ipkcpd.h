@@ -13,6 +13,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <signal.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ using namespace std;
 extern int srv_socket; // global variables for signal handling
 extern int mode;
 extern bool close_soc ;
-extern struct pollfd fds[200];
+extern struct pollfd fds[MAX_CLIENTS];
 extern int nfds;
 
 void print_usage(void);

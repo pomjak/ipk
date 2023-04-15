@@ -24,7 +24,7 @@
 int srv_socket = -1; // global variables for signal handling
 int mode;
 bool close_soc = false;
-struct pollfd fds[200];
+struct pollfd fds[MAX_CLIENTS];
 int nfds = 1;
 
 int main(int argc, char *argv[])

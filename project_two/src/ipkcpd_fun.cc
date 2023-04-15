@@ -102,7 +102,7 @@ void set_up_socket(void)
             exit_err("failed creating server socket");
 
         setsockopt(srv_socket, SOL_SOCKET, SO_REUSEADDR,(char *)&enable, sizeof(enable));
-        ioctl(srv_socket, FIONBIO, (char *)&enable);
+        // ioctl(srv_socket, FIONBIO, (char *)&enable);
         int flags = fcntl(srv_socket, F_GETFL, 0);
         fcntl(srv_socket, F_SETFL, flags | O_NONBLOCK);
     }   
@@ -264,7 +264,6 @@ string tcp_calculate(char *request, bool *close)
 void tcp_communication()
 {
     int rc;
-    nfds = 1;
     int curr = 0;
     int new_socket = -1;
     bool end = false, compress = false, close_conn = false;
@@ -306,8 +305,6 @@ void tcp_communication()
 
             if (fds[i].fd == srv_socket)
             {
-                do
-                {
                     new_socket = accept(srv_socket, NULL, NULL);
                     if (new_socket < 0)
                     {
@@ -322,10 +319,7 @@ void tcp_communication()
                     fds[nfds].fd = new_socket;
                     fds[nfds].events = POLLIN;
                     nfds++;
-
-                }while (new_socket != -1);
             }
-
 
             else
             {
