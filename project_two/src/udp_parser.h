@@ -25,9 +25,7 @@ class Parser
     public:
         Parser(Lexer lexer) : lexer(lexer) {}
 
-        Frac parseExpr(void);
-
-        Frac parseQuery(void);
+        Frac parseExpr();
 
 };
 

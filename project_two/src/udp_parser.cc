@@ -5,6 +5,7 @@
 Frac Parser::parseExpr()
 {
     Token token = lexer.getNextToken();
+
     if (token.type == LPAREN) 
     {
         string op = lexer.getNextToken().value;
@@ -19,8 +20,15 @@ Frac Parser::parseExpr()
 
         Frac right = parseExpr();
 
-        if(lexer.getNextToken().type != RPAREN)
-            throw runtime_error("PARSER: missing right parenthesis");
+        while(lexer.getNextToken().type != RPAREN)
+        {
+            if (lexer.getNextToken().type == SP)
+            {
+
+            }
+            else
+                throw runtime_error("PARSER: missing right parenthesis");
+        }
 
         if (op == "+")
             return left + right;

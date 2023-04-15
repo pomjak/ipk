@@ -157,8 +157,7 @@ string calculate(string input)
     
     if(result.is_frac())
     {
-        int_2_str.append("/");
-        int_2_str.append(to_string(result.get_denom()));
+        return to_string( (result.get_num()/result.get_denom()) );
     }
 
     return int_2_str;
@@ -207,5 +206,5 @@ void udp_communication()
 
 void tcp_communication()
 {
-    cout << "hello world" << endl;
+    
 }
