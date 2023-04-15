@@ -88,9 +88,13 @@ void set_up_socket(void)
     }
     else
     { 
+        int enable = 1;
         if ((srv_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) // creating client socket for udp
             exit_err("failed creating server socket");
-    }
+
+        setsockopt(srv_socket, SOL_SOCKET, SO_REUSEADDR,(char *)&enable, sizeof(enable));
+        ioctl(srv_socket, FIONBIO, (char *)&enable);
+    }   
         
 
     close_soc = true;
@@ -143,7 +147,6 @@ string calculate(string input)
 {
     string int_2_str;
 
-    
     Lexer lexer(input);
 
     Parser parser(lexer);
@@ -204,7 +207,176 @@ void udp_communication()
     }
 }
 
+string tpc_verify(char *request, bool *hello, bool *close)
+{
+    cout << "REC:" << request << endl;
+    if(string(request) == "HELLO")
+    {
+        *hello = true;
+        return "HELLO\0";
+    }
+    else 
+    {
+        *close = true;
+        return "BYE\0";
+    }
+}
+
+string tcp_calculate(char *request, bool *close)
+{
+    if (!strncmp(request, "SOLVE ", strlen("SOLVE ")))
+    {
+        string result = "RESULT ";
+        string input = request + strlen("SOLVE ") - 1;
+        result.append(calculate(input));
+        result.append("\0");
+        return result;
+    }
+    else
+    {
+        *close = true;
+        return "BYE\0";
+    }
+}
+
 void tcp_communication()
 {
-    
+    int rc;
+    int nfds = 1, curr = 0;
+    int new_socket = -1;
+    bool end = false, compress = false, close_conn = false;
+    char buffer[TCP_LIMIT] = "\0";
+
+    struct pollfd fds[200];
+
+    listen(srv_socket, 32);
+    memset(fds, 0, sizeof(fds));
+
+    fds[0].fd = srv_socket;
+    fds[0].events = POLLIN;
+
+    do
+    {
+        rc = poll(fds, nfds, -1);
+
+        if (rc < 0)
+        {
+            exit_err("poll() failed");
+            break;
+        }
+
+        if (rc == 0)
+        {
+            break;
+        }
+
+        curr = nfds;
+        for (int i = 0; i < curr; i++)
+        {
+            if (fds[i].revents == 0)
+                continue;
+
+            if (fds[i].revents != POLLIN)
+            {
+                end = true;
+                break;
+            }
+            if (fds[i].fd == srv_socket)
+            {
+                do
+                {
+                    new_socket = accept(srv_socket, NULL, NULL);
+                    if (new_socket < 0)
+                    {
+                        if (errno != EWOULDBLOCK)
+                        {
+                            exit_err("accept() failed");
+                            end = true;
+                        }
+                        break;
+                    }
+
+                    fds[nfds].fd = new_socket;
+                    fds[nfds].events = POLLIN;
+                    nfds++;
+
+                }while (new_socket != -1);
+            }
+
+
+            else
+            {
+                close_conn = false;
+                bool recieved_hello = false;
+                do
+                {
+                    rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+                    if (rc < 0)
+                    {
+                        if (errno != EWOULDBLOCK)
+                        {
+                            exit_err("recv() failed");
+                            close_conn = true;
+                        }
+                        break;
+                    }
+
+                    if (rc == 0 || !strcmp(buffer, "BYE\0"))
+                    {
+                        close_conn = true;
+                        break;
+                    }
+
+                    string response;
+
+                    if(!recieved_hello)
+                        response = tpc_verify(buffer, &recieved_hello, &close_conn);
+                    else
+                        response = tcp_calculate(buffer, &close_conn);
+
+                    rc = send(fds[i].fd, response.c_str(), response.length(), 0);
+                    if (rc < 0)
+                    {
+                        exit_err("send() failed");
+                        close_conn = true;
+                        break;
+                    }
+
+                    if(close_conn)
+                        break;
+
+                } while (true);
+
+                if (close_conn)
+                {
+                    close(fds[i].fd);
+                    fds[i].fd = -1;
+                    compress = true;
+                }
+            }
+        }
+
+        if (compress)
+        {
+            compress = false;
+            for (int i = 0; i < nfds; i++)
+            {
+                if (fds[i].fd == -1)
+                {
+                    for (int j = i; j < nfds; j++)
+                    {
+                        fds[j].fd = fds[j + 1].fd;
+                    }
+                    i--;
+                    nfds--;
+                }
+            }
+        }
+    }while (end == false);
+
+    for (int i = 0; i < nfds; i++)
+    {
+        if (fds[i].fd >= 0)
+            close(fds[i].fd);
+    }
 }

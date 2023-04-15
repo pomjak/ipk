@@ -22,11 +22,11 @@ Frac Parser::parseExpr()
 
         while(lexer.getNextToken().type != RPAREN)
         {
-            if (lexer.getNextToken().type == SP)
-            {
+            // if (lexer.getNextToken().type == SP)
+            // {
 
-            }
-            else
+            // }
+            // else
                 throw runtime_error("PARSER: missing right parenthesis");
         }
 

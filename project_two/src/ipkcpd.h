@@ -7,6 +7,8 @@
 #include <cstdlib>
 #include <regex>
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/poll.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <signal.h>
@@ -47,6 +49,10 @@ void format_response(char *response, bool status, string msg);
 string calculate(string input);
 
 void udp_communication(void);
+
+string tpc_verify(char *request, bool *close);
+
+string tcp_calculate(char *request,bool *close);
 
 void tcp_communication(void);
 
