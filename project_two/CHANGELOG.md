@@ -1,3 +1,26 @@
+- renaming lexer and parser modules
+- bug fixes tpc
+- fixing signal handler to close connections gracefully
+- bug fixes: tcp
+- implementing basic tcp communication
+- foramting output to match exact gramatics with fractions
+- bug fixes; better exception handling
+- fix bug: exception for division by 0
+- changing structure of files
+- fixing bugs: adding exceptions for parse to evaluate bad formating
+- adding class Frac with overloading operators for computing fractions correctly
+- fixing division calculation
+- updating changelog.md; udp_parser.cc: added parsing option for negative numbers
+- fixing return from parser of only one number
+- adding exception divison by zero
+- ipkcpd_fun.cc: udp_communication(): catching exception the right way
+- refaktor & bug fixes
+- minor changes
+- refactoring func calculate
+- adding implementation of udp_lexer and udp parser
+- adding udp_lexer.cc and parser.cc
+- adding classes for lexer and parser for udp
+- CHANGELOG.md:update, refactoring:adding ipkcpd_fun.cc & ipkcpd.h for better readability
 - ipkcpd.cc: udp: minor refactor and bug fixes
 - ipkcpd.cc: udp: refactoring code to functions
 - ipkcpd.cc: udp: more bug fixes
