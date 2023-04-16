@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <cctype>
+#include <stack>
 
 #include"lexer.h"
 #include"frac.h"

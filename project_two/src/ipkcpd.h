@@ -32,6 +32,7 @@
 #include <sys/socket.h>
 #include <signal.h>
 #include <unistd.h>
+#include "frac.h"
 
 using namespace std;
 
@@ -68,6 +69,8 @@ void bind(unsigned int port);
 int verify_request(char *request);
 
 void format_response(char *response, bool status, string msg);
+
+void reverse_stack_order (stack<Frac> *stack);
 
 string calculate(string input);
 

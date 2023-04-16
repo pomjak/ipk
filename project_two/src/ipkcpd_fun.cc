@@ -172,6 +172,17 @@ void format_response(char *response, bool status, string msg)
     memcpy(response, temp, UDP_LIMIT); // response <== temp
 }
 
+void reverse_stack_order(stack<Frac> *stack)
+{
+    std::stack<Frac> reversedStack;
+    while (!stack->empty())
+    {
+        reversedStack.push(stack->top());
+        stack->pop();
+    }
+    *stack = reversedStack;
+}
+
 string calculate(string input)
 {
     string int_2_str;

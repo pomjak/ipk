@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "frac.h"
+#include "ipkcpd.h"
 
 Frac Parser::parseExpr()
 {
@@ -8,42 +9,86 @@ Frac Parser::parseExpr()
 
     if (token.type == LPAREN) 
     {
+        stack<Frac> stack;
         string op = lexer.getNextToken().value;
 
         if (lexer.getNextToken().type != SP)
             throw runtime_error("PARSER: missing space OP<SPACE>EXP");
 
-        Frac left = parseExpr();
+        stack.push(parseExpr());
+
 
         if (lexer.getNextToken().type != SP)
             throw runtime_error("PARSER: missing space EXP<SPACE>EXP");
 
-        Frac right = parseExpr();
+        stack.push(parseExpr());
 
-        while(lexer.getNextToken().type != RPAREN)
+
+        while((token = lexer.getNextToken()).type != RPAREN)
         {
-            // if (lexer.getNextToken().type == SP)
-            // {
-
-            // }
-            // else
+            if (token.type == SP)
+            {
+                stack.push(parseExpr());
+            }
+            else
                 throw runtime_error("PARSER: missing right parenthesis");
         }
 
         if (op == "+")
-            return left + right;
+        {
+            Frac result = stack.top();
+            stack.pop();
+            while (!stack.empty())
+            {
+                result = result + stack.top();
+                stack.pop();
+            }
+            return result;
+        }
 
         else if (op == "-")
-            return left - right;
+        {
+            reverse_stack_order(&stack);
+            Frac result = stack.top();
+            stack.pop();
+            while (!stack.empty())
+            {
+                result = result - stack.top();
+
+                stack.pop();
+            }
+            return result;
+        }
 
         else if (op == "*")
-            return left * right;
+        {
+            Frac result = stack.top();
+            stack.pop();
+            while (!stack.empty())
+            {
+                result = result * stack.top();
+
+                stack.pop();
+            }
+            return result;
+        }
 
         else if (op == "/")
-        {   
-            if(right.get_num() == 0)
-                throw runtime_error("PARSER: division by 0");
-            return left / right;
+        {
+            {
+                reverse_stack_order(&stack);
+                Frac result = stack.top();
+                stack.pop();
+                while (!stack.empty())
+                {
+                    if(!stack.top().get_denom())
+                        throw runtime_error("PARSER: division by 0");
+                    result = result / stack.top();
+
+                    stack.pop();
+                }
+                return result;
+            }
         }
         else
             throw runtime_error("PARSER: unrecognized operator");
@@ -58,5 +103,5 @@ Frac Parser::parseExpr()
         throw runtime_error("PARSER: not supported operator -");
     }
 
-    throw runtime_error("PARSER: missing left parenthesis");
+    throw runtime_error("PARSER: cant parse that");
 }
