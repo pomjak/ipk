@@ -11,7 +11,7 @@ do
     ../project_one/./ipkcpc -h 127.0.0.1 -p 2023 -m udp < tests/not-valid/"$i".in > tests/not-valid/"$i".out
     echo "NOT-VALID test "$i" :"
     cut -c 1-4 tests/not-valid/"$i".out > tests/not-valid/"$i".part
-    diff tests/not-valid/"$i".part tests/not-valid/0.exp
+    diff -s tests/not-valid/"$i".part tests/not-valid/0.exp
 done
 
 rm -rf *.part
