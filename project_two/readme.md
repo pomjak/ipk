@@ -16,7 +16,7 @@ TCP is a reliable protocol that guarantees the delivery of data without errors a
 
 On the other hand, UDP is an unreliable protocol that does not guarantee the delivery or order of data. However, it is faster and more efficient than TCP.
 
-Another important aspect to consider is the IPK calculator protocol, which offers both binary (UDP) and textual (TCP) variants. This protocol is used for computing ABNF expressions.
+Another important aspect to consider is the IPK calculator protocol, which offers both binary (UDP) and textual (TCP) variants. This protocol is intended for communication between servers and clients.
 
 ### Description of interesting parts 
 For the implementation of the IOTA ipkcpd server, the poll() function was chosen as an efficient way to manage multiple client connections.
@@ -42,7 +42,7 @@ In addition to the main functionalities, an extra class called Frac was designed
 The Frac class can be used to store rational numbers as a pair of integers (numerator and denominator) and perform arithmetic operations on them using simple operator overloading.
 
 
-## Bibliogrpahy
+### Bibliography
 
 <a id="1">[1]</a> Ing. Daniel Dolejška, Ing. Michal Koutenský,  _Programování síťových aplikací IPK 2022/2023 L_ , \[online\]
 
