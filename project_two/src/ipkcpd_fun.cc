@@ -212,7 +212,7 @@ void udp_communication()
     socklen_t addr_size = sizeof(client_addr);
     struct sockaddr *addr = (struct sockaddr *)&client_addr;
 
-    char buffer[UDP_LIMIT] = "\0";
+    char buffer[UDP_LIMIT] = {0,};
 
     while (true)
     {
@@ -295,28 +295,23 @@ void compress_fds(bool *compress_flag)
     {
         if (fds[i].fd == -1)
         {
-            for (int j = i; j < nfds; j++)
+            for (int j = i; j < nfds - 1; j++)
             {
                 fds[j].fd = fds[j + 1].fd;
             }
-            i--;
             nfds--;
+            i--;
         }
     }
 }
 
 void tcp_communication(void)
 {
-    int rc;
-    int curr = 0;
-    int new_socket = -1;
+    int rc, curr = 0, new_socket = -1;
     bool end = false, compress = false;
-
-    bool recieved_hello[MAX_CLIENTS] = {false,};
-    bool close_conn[MAX_CLIENTS] = {false,};
-
-    char buffer[TCP_LIMIT] = "\0";
-
+    bool received_hello[MAX_CLIENTS] = {false};
+    bool close_conn[MAX_CLIENTS] = {false};
+    char buffer[TCP_LIMIT] = {0,};
 
     listen(srv_socket, MAX_CLIENTS);
     memset(fds, 0, sizeof(fds));
@@ -331,11 +326,7 @@ void tcp_communication(void)
         if (rc < 0)
         {
             exit_err("poll() failed");
-            break;
-        }
-
-        if (rc == 0)
-        {
+            end = true;
             break;
         }
 
@@ -347,33 +338,33 @@ void tcp_communication(void)
 
             if (fds[i].fd == srv_socket)
             {
-                    new_socket = accept(srv_socket, NULL, NULL);
-                    if (new_socket < 0)
+                new_socket = accept(srv_socket, NULL, NULL);
+                if (new_socket < 0)
+                {
+                    if (errno != EWOULDBLOCK)
                     {
-                        if (errno != EWOULDBLOCK)
-                        {
-                            exit_err("accept() failed");
-                            end = true;
-                        }
-                        break;
+                        exit_err("accept() failed");
+                        end = true;
                     }
+                    break;
+                }
 
-                    fds[nfds].fd = new_socket;
-                    fds[nfds].events = POLLIN;
-                    nfds++;
+                fds[nfds].fd = new_socket;
+                fds[nfds].events = POLLIN;
+                nfds++;
             }
 
             else
             {
                 close_conn[i] = false;
-                
-                memset(buffer, '\0', TCP_LIMIT * sizeof(buffer[0]));
+
+                memset(buffer, '\0', sizeof(buffer));
                 rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
                 if (rc < 0)
                 {
                     if (errno != EWOULDBLOCK)
                     {
-                        exit_err("recv() failed");
+                        cerr << "recv() failed " << endl;
                         close_conn[i] = true;
                     }
                 }
@@ -385,15 +376,14 @@ void tcp_communication(void)
 
                 string response;
 
-                if(!recieved_hello[i])
-                    response = tcp_verify(buffer, &recieved_hello[i], &close_conn[i]);
+                if (!received_hello[i])
+                    response = tcp_verify(buffer, &received_hello[i], &close_conn[i]);
                 else
                     response = tcp_calculate(buffer, &close_conn[i]);
 
-                rc = send(fds[i].fd, response.c_str(), response.length(), 0);
-                if (rc < 0)
+                if (send(fds[i].fd, response.c_str(), response.length(), 0) < 0)
                 {
-                    exit_err("send() failed");
+                    cerr << "send() failed" << endl;
                     close_conn[i] = true;
                 }
 
@@ -402,7 +392,7 @@ void tcp_communication(void)
                     close(fds[i].fd);
                     fds[i].fd = -1;
                     close_conn[i] = false;
-                    recieved_hello[i] = false;
+                    received_hello[i] = false;
                     compress = true;
                 }
             }
@@ -411,7 +401,7 @@ void tcp_communication(void)
         if (compress)
             compress_fds(&compress);
 
-    }while (end == false);
+    }while (!end);
 
     for (int i = 0; i < nfds; i++)
     {
