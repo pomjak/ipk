@@ -288,7 +288,28 @@ string tcp_calculate(char *request, bool *close)
     }
 }
 
-void compress_fds(bool *compress_flag)
+bool accept_new_socket(bool *end)
+{
+    int new_socket;
+
+    new_socket = accept(srv_socket, NULL, NULL);
+    if (new_socket < 0)
+    {
+        if (errno != EWOULDBLOCK)
+        {
+            *end = true;
+            cerr<<("accept() failed")<<endl;
+            return false;
+        }
+    }
+
+    fds[nfds].fd = new_socket;
+    fds[nfds].events = POLLIN;
+    nfds++;
+    return true;
+}
+
+void compress_fds(bool *compress_flag, bool *hello, bool *close)
 {
     *compress_flag = false;
     for (int i = 0; i < nfds; i++)
@@ -298,6 +319,8 @@ void compress_fds(bool *compress_flag)
             for (int j = i; j < nfds - 1; j++)
             {
                 fds[j].fd = fds[j + 1].fd;
+                close[j] = close[j + 1];
+                hello[j] = hello[j + 1];
             }
             nfds--;
             i--;
@@ -307,7 +330,7 @@ void compress_fds(bool *compress_flag)
 
 void tcp_communication(void)
 {
-    int rc, curr = 0, new_socket = -1;
+    int rc, curr = 0;
     bool end = false, compress = false;
     bool received_hello[MAX_CLIENTS] = {false};
     bool close_conn[MAX_CLIENTS] = {false};
@@ -321,9 +344,7 @@ void tcp_communication(void)
 
     do
     {
-        rc = poll(fds, nfds, -1);
-
-        if (rc < 0)
+        if (poll(fds, nfds, -1) < 0)
         {
             exit_err("poll() failed");
             end = true;
@@ -333,25 +354,13 @@ void tcp_communication(void)
         curr = nfds;
         for (int i = 0; i < curr; i++)
         {
-            if (fds[i].revents == 0)
+            if (!fds[i].revents)
                 continue;
 
             if (fds[i].fd == srv_socket)
             {
-                new_socket = accept(srv_socket, NULL, NULL);
-                if (new_socket < 0)
-                {
-                    if (errno != EWOULDBLOCK)
-                    {
-                        exit_err("accept() failed");
-                        end = true;
-                    }
+                if(!accept_new_socket(&end))
                     break;
-                }
-
-                fds[nfds].fd = new_socket;
-                fds[nfds].events = POLLIN;
-                nfds++;
             }
 
             else
@@ -369,10 +378,8 @@ void tcp_communication(void)
                     }
                 }
 
-                if (rc == 0 || !strcmp(buffer, "BYE\n"))
-                {
+                if (!rc)
                     close_conn[i] = true;
-                }
 
                 string response;
 
@@ -399,7 +406,7 @@ void tcp_communication(void)
         }
 
         if (compress)
-            compress_fds(&compress);
+            compress_fds(&compress,received_hello,close_conn);
 
     }while (!end);
 

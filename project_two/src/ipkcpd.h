@@ -80,7 +80,9 @@ string tcp_verify(char *request, bool *close);
 
 string tcp_calculate(char *request,bool *close);
 
-void compress_fds(bool *compress_flag);
+bool accept_new_socket(bool *end);
+
+void compress_fds(bool *compress_flag, bool *hello[], bool *close[]);
 
 void tcp_communication(void);
 
