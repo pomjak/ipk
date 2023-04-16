@@ -1,3 +1,8 @@
+- ipkcpd.cc:refactoring
+- refactoring
+- fixing tcp comm to be non-blocking
+- parser.cc: fixing implementation with stack to match gramatics
+- adding license header to every file
 - renaming lexer and parser modules
 - bug fixes tpc
 - fixing signal handler to close connections gracefully

@@ -249,7 +249,6 @@ void udp_communication()
 
 string tcp_verify(char *request, bool *hello, bool *close)
 {
-    cout << "REC:" << request << endl;
     if(string(request) == "HELLO\n")
     {
         *hello = true;

@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
 
     else exit_err("main:unrecognized mode");
 
-
+    close(srv_socket);
+    
     return EXIT_SUCCESS;
 }

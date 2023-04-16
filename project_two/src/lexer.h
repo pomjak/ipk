@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef UDP_LEXER
-#define UDP_LEXER
+#ifndef LEXER
+#define LEXER
 
 #include <iostream>
 #include <string>
