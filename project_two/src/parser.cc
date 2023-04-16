@@ -81,7 +81,7 @@ Frac Parser::parseExpr()
                 stack.pop();
                 while (!stack.empty())
                 {
-                    if(!stack.top().get_denom())
+                    if(!stack.top().get_num())
                         throw runtime_error("PARSER: division by 0");
                     result = result / stack.top();
 
