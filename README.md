@@ -9,7 +9,16 @@
 - tests/
 
 ### project_two/ IOTA: Server for Remote Calculator
-- ipkcpd.cc
+- src/
+    -ipkcpd.cc
+    -ipkcpd_fun.cc
+    -ipkcpd.h
+    -frac.cc
+    -frac.h
+    -lexer.cc
+    -lexer.h
+    -parser.cc
+    -parser.h
 - Makefile
 - CHANGELOG.md
 - README.md
