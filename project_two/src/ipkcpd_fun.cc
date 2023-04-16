@@ -41,22 +41,23 @@ void signal_callback_handler(int signum)
 {
     if (mode == TCP)
     {
-        send(srv_socket, "BYE\n", strlen("BYE\n"), 0); // if tcp, send BYE
-        // SEND BYE
-
-        char buffer[TCP_LIMIT];
-        recv(srv_socket, buffer, TCP_LIMIT, 0); // and wait for BYE from server
-        cout << buffer;
-    }
-    if (close_soc)
-    {
-        for (int i = 0; i < nfds; i++)
+        if (close_soc)
         {
-            if (fds[i].fd >= 0)
+            for (int i = 0; i < nfds; i++)
             {
-                send(fds[i].fd, "BYE\n", strlen("BYE\n"), 0);
-                close(fds[i].fd);
+                if (fds[i].fd >= 0)
+                {
+                    send(fds[i].fd, "BYE\n", strlen("BYE\n"), 0);
+                    close(fds[i].fd);
+                }
             }
+        }
+    }
+    else
+    {
+        if (close_soc)
+        {
+            close(srv_socket);
         }
     }
     // terminate program
@@ -149,13 +150,9 @@ int verify_request(char *request)
 
     if (request[0] == OPCODE_REQUEST)
     {
-        cout << "request ok" << endl;
-
         payload_len = (int)request[1];
 
         request[REQUEST_OFFSET + payload_len + 1] = '\0';
-
-        cout << "REQ:" << request + REQUEST_OFFSET << endl;
     }
 
     else exit_err("recieved response");

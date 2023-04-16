@@ -30,7 +30,7 @@ If poll() returns a positive value, it indicates that there are file descriptors
 This approach allows the IOTA ipkcpd server to efficiently manage multiple client connections while minimizing resource usage. By waiting on multiple file descriptors at once, the server can be more responsive and handle more clients simultaneously.
 
 ### Testing section
-During the development process, testing was mainly performed manually. The majority of the tests focused on the lexer and parser modules, which are essential for computing and are used for both the binary and textual variants.
+During the development process, the testing was mainly performed manually and later automated, with a focus on the parser and UDP connection. This can be seen in the "tests" folder, which contains files with the extensions ".in," ".out," and ".exp," as well as in the "test.log" file. Most of the tests focused on the lexer and parser modules, which are crucial for performing computations in both binary and textual formats.
 
 The tests covered a range of scenarios, including handling multiple client connections, parsing input data, and computing expressions accurately. Additionally, tests from the first assignment were also utilized to ensure the server's overall functionality.
 

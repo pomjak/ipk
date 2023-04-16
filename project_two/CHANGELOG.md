@@ -1,3 +1,11 @@
+- tested in a virtual test environment, all ok
+- fix:division by 0
+- fix: 09 valid test corrected
+- added tests
+- fix: typos in main readme
+- fix: typos in readme, updating main readme
+- fix: typos in readme
+- updating changelog; readme.md: completed
 - updating changelog; creating readme.md, ipkcpd & lexer: refactor
 - ipkcpd.cc:refactoring
 - refactoring
