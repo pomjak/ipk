@@ -1,3 +1,4 @@
+- updating changelog; creating readme.md, ipkcpd & lexer: refactor
 - ipkcpd.cc:refactoring
 - refactoring
 - fixing tcp comm to be non-blocking
