@@ -1,0 +1,20 @@
+test 1 :
+Files tests/valid/1.out and tests/valid/1.exp are identical
+test 2 :
+Files tests/valid/2.out and tests/valid/2.exp are identical
+test 3 :
+Files tests/valid/3.out and tests/valid/3.exp are identical
+test 4 :
+Files tests/valid/4.out and tests/valid/4.exp are identical
+test 5 :
+Files tests/valid/5.out and tests/valid/5.exp are identical
+test 6 :
+Files tests/valid/6.out and tests/valid/6.exp are identical
+test 7 :
+Files tests/valid/7.out and tests/valid/7.exp are identical
+test 8 :
+Files tests/valid/8.out and tests/valid/8.exp are identical
+test 9 :
+Files tests/valid/9.out and tests/valid/9.exp are identical
+test 10 :
+Files tests/valid/10.out and tests/valid/10.exp are identical
