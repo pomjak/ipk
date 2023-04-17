@@ -34,7 +34,7 @@ During the development process, the testing was mainly performed manually and la
 
 The tests covered a range of scenarios, including handling multiple client connections, parsing input data, and computing expressions accurately. Additionally, tests from the first assignment were also utilized to ensure the server's overall functionality.
 
-The testing environment was on a local Arch-based machine and on a Nix OS virtual machine provided for testing purposes.
+The testing was done using ipkcp client from from the first assignment and using program netcat, testing environment was set on a local Arch-based machine and on a Nix OS virtual machine provided for testing purposes.
 
 ### Description of extra features
 In addition to the main functionalities, an extra class called Frac was designed for intermediate calculations to be computed as fractions. This allows for more precise computations and provides a foundation for future implementation of sending data to clients in the representation of a number as a fraction.
